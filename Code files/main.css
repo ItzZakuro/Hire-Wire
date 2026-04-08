@@ -92,3 +92,53 @@ input, textarea {
   color: white;
   border: none;
 }
+
+.profile {
+    margin-left: 20px;
+}
+
+.sectionText {
+  margin-bottom: 20px;
+}
+
+.profileGrid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+}
+
+.profilePicture img {
+  width: 100%;
+}
+
+.profilePicture {
+  margin-top: 30px;
+}
+
+.profileCard h2 {
+  margin-top: 20px;
+}
+
+.profileCard h3 {
+  margin-top: 20px;
+}
+
+.candidateInfo {
+  margin-top: 20px;
+}
+
+.editProfile {
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
+}
+
+#editProfileForm {
+  padding: 10px;
+  margin-top: 20px;
+  width: 100%;
+  border: 1px solid black; 
+  background: white;
+}
+
