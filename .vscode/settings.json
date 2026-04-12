@@ -1,0 +1,24 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "pool": {
+                "max": 10,
+                "min": 0,
+                "idleTimeoutMillis": 30000
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "HireWire Local",
+            "database": "HireWireDB",
+            "username": "root",
+            "password": "PotatoFarm28"
+        }
+    ]
+}
