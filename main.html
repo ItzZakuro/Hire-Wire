@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="main.css">
+        <script src="main.js" defer></script>
+        <title>HireWire</title>
+    </head>
+    <body>
+        <header>
+            <div class="container nav">
+                <div class="logo">HIRE WIRE</div>
+                <button class="menuBtn" id="menuBtn">Menu</button>
+                <nav class="navLinks" id="navLinks">
+                    <a href="main.html">Home</a>
+                    <a href="job_listings.html">Job Listings</a>
+                    <a href="candidate.html">Candidate Matching</a>
+                    <a href="employer.html">Employee matching</a>
+                    <a href="profile.html">Profile</a>
+                    <a href="login.html">Log In</a>
+                </nav>
+            </div>
+        </header>
+        <section class="intro" id="home">
+            <div class="container heroContent">
+                <h1>Hire Wire: Employee-to-Employer Matchmaking</h1>
+                <p>Hire Wire helps employers find candidates and helps job seekers find roles that match their profile</p>
+                <a class="btn" href="#contact">Start Hiring</a>
+            </div>
+        </section>
+        <section id="about">
+            <div class="container aboutGrid">
+                <h3>Smarter Employee-Employer Matching</h3>
+                <p>Hire Wire is a matching platform designed to bring employers and employees together in one simple place. Businesses can post opportunities, and job seekers can create profiles to showcase their strengths.</p>
+                <p>Our goal is to make recruitment easier, faster, and more relevant by focusing on skills, job preferences, and workplace fit.</p>
+                <a class="btn" href="#services">Explore Services</a>
+            </div>
+        </section>
+        <section id="services">
+            <div class="container">
+                <h2 class="sectionTitle">Our Services</h2>
+                <p class="sectionText">Hire Wire supports both employers and employees throughout the recruitment process.</p>
+                <div class="practiceGrid">
+                    <div class="card">
+                        <h3>For Employers</h3>
+                        <p>Post job openings, review candidate profiles, and connect with applicants whose skills match your business needs.</p>
+                    </div>
+                    <div class="card">
+                        <h3>For Job Seekers</h3>
+                        <p>Create a profile, upload your experience, and discover job opportunities suited to your goals and qualifications.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Matching System</h3>
+                        <p>Our platform helps pair employers and employees based on qualifications, interests, and job requirements.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="matches">
+            <div class="container">
+                <h2 class="sectionTitle">Featured Matches</h2>
+                <p class="sectionText">Examples of the kinds of candidates and employers that can connect through Hire Wire.</p>
+                <div class="teamGrid">
+                    <div class="teamMember">
+                        <img src="img1.jpg" alt="Candidate profile" />
+                        <div class="teamInfo">
+                            <h3>Alex Carter</h3>
+                            <p>Frontend Developer seeking junior web roles</p>
+                        </div>
+                    </div>
+                    <div class="teamMember">
+                        <img src="img2.jpg" alt="Candidate profile" />
+                        <div class="teamInfo">
+                            <h3>Priya Singh</h3>
+                            <p>HR Coordinator hiring graduate analysts</p>
+                        </div>
+                    </div>
+                    <div class="teamMember">
+                        <img src="img3.jpg" alt="Candidate profile" />
+                        <div class="teamInfo">
+                            <h3>Daniel Lee</h3>
+                            <p>Software Engineer open to full-time opportunities</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="contact">
+            <div class="container">
+                <h2 class="sectionTitle">Contact Hire Wire</h2>
+                <p class="sectionText">
+                    Get in touch to learn more about hiring, job applications, or how our matching platform works.
+                </p>
+                <div class="contactGrid">
+                    <div class="contactInfo">
+                        <p><strong>Address:</strong> 100 Market Street, Sydney NSW</p>
+                        <p><strong>Phone:</strong> (02) 9000 1234</p>
+                        <p><strong>Email:</strong> support@wirehire.com</p>
+                        <p><strong>Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM</p>
+                    </div>
+                    <form id="contactForm">
+                        <div class="field">
+                            <input type="text" id="name" placeholder="Your Name" required />
+                        </div>
+                        <div class="field">
+                            <input type="email" id="email" placeholder="Your Email" required />
+                        </div>
+                        <div class="field">
+                            <textarea id="details" placeholder="Tell us if you are hiring or looking for work" required></textarea>
+                        </div>
+                        <button class="btn" type="submit">Send Message</button>
+                        <div class="message" id="formMessage"></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
