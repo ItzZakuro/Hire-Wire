@@ -8,7 +8,12 @@
 
     To run this code, use the terminal and type...
         node server.js
+
+    Test the api, connection, and conversion to JSON by pasting these URLs into your browser:
+        http://localhost:3000/api/jobListings
+        http://localhost:3000/api/jobSeekers
 */
+
 
 /* -- MAIN DATABASE CONNECTION STUFF -- */
 // import libraries
@@ -25,7 +30,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "PotatoFarm28",
-  database: "HireWire"
+  database: "hirewiredb"
 });
 
 // try to connect to database
@@ -41,13 +46,18 @@ db.connect(err => {
 /* -- API ROUTE STUFF -- */
 // endpoint for job listings/employers (returns all job listing data)
 app.get("/api/jobListings", (req, res) => {
+    // console.log("API HIT: /api/jobListings"); // debug
   const sql = "SELECT * FROM jobListings"; // adjust later to filter for certain jobs
 
   db.query(sql, (err, results) => { // sends sql query to database
+    // console.log("QUERY CALLBACK REACHED"); // debug
+    
     // error handling
     if (err) {
+        // console.error("SQL ERROR:", err); // debug
       return res.status(500).json(err); 
     }
+    // console.log("RESULTS:", results); // debug
     res.json(results); // send data to frontend by converting data to json
   });
 });
