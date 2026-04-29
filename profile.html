@@ -6,6 +6,17 @@
         <link rel="stylesheet" href="main.css">
         <script src="main.js" defer></script>
         <title>HireWire</title>
+        <style>
+            .upload{
+                display: flex;
+                border: 1px solid #ddd;
+                padding: 20px 20px;
+                background-color:azure;
+                margin-top: 10px;
+                margin-left: 30px;
+                margin-right: 30px;
+            }
+        </style>
     </head>
     <body>
         <header>
@@ -15,6 +26,7 @@
                 <nav class="navLinks" id="navLinks">
                     <a href="main.html">Home</a>
                     <a href="job_listings.html">Job Listings</a>
+                    <a href="candidate_listings.html">Candidate Listings</a>
                     <a href="candidate.html">Candidate Matching</a>
                     <a href="employer.html">Employee matching</a>
                     <a href="profile.html">Profile</a>
@@ -74,6 +86,14 @@
 
                     <button type="submit" id="saveBtn">Save</button>
                 </form>
+            </div>
+        </section>
+        <section class="upload">
+            <div class="uploadResume">
+                <h2>Upload Resume</h2>
+                <p>Upload your latest resume to keep your profile up to date.</p>
+                <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" />
+                <button id="uploadBtn">Upload Resume</button>
             </div>
         </section>
     </body>
