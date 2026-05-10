@@ -1,58 +1,83 @@
 .swipeSection {
-            padding: 40px 0;
-            text-align: center;
-        }
+    padding: 100px 0;
+    text-align: center;
+    background-color: #f4f4f4; 
+}
 
-        .swipeCard {
-            max-width: 420px;
-            margin: 30px auto;
-            border: 1px solid #ccc;
-            padding: 20px;
-            background: white;
-        }
+.swipeCard {
+    max-width: 420px;
+    margin: 30px auto;
+    border: none; 
+    border-top: 5px solid #a89676; 
+    padding: 30px 20px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+    border-radius: 4px;
+}
 
-        .swipeCard img {
-            width: 100%;
-            height: 260px;
-            object-fit: cover;
-            margin-bottom: 15px;
-        }
+.swipeCard img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border-radius: 2px;
+}
 
-        .swipeCard h2 {
-            margin-bottom: 10px;
-        }
+.swipeCard h2 {
+    margin-bottom: 15px;
+    font-family: Impact, 'Arial Narrow', sans-serif;
+    color: #333;
+    letter-spacing: 1px;
+}
 
-        .swipeCard p {
-            margin-bottom: 8px;
-        }
+.swipeCard p {
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: #555;
+}
 
-        .swipeButtons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
+.swipeCard strong {
+    color: #a89676; 
+}
+.swipeButtons {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
 
-        .passBtn,
-        .likeBtn {
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            color: white;
-        }
+.passBtn, .likeBtn {
+    padding: 12px 30px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
 
-        .passBtn {
-            background: #666;
-        }
+.passBtn {
+    background: #504e4a; 
+}
 
-        .likeBtn {
-            background: #333;
-        }
+.passBtn:hover {
+    background: #3a3835;
+}
 
-        .resultBox {
-            max-width: 420px;
-            margin: 20px auto;
-            border: 1px solid #ccc;
-            padding: 15px;
-            background: #f9f9f9;
-        }
+.likeBtn {
+    background: #a89676; 
+}
+
+.likeBtn:hover {
+    background: #8e7d60;
+}
+.resultBox {
+    max-width: 420px;
+    margin: 40px auto 20px;
+    border: 1px solid #ddd;
+    border-left: 4px solid #504e4a; 
+    padding: 20px;
+    background: white;
+    text-align: left;
+}
