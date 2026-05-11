@@ -14,19 +14,91 @@
         .filter-bar {
             display: flex;
             gap: 15px;
-            margin-bottom: 50px;
-            flex-wrap: wrap; 
+            margin-bottom: 25px;
+            flex-wrap: wrap;
         }
 
-        .filter-bar input[type="text"],
-        .filter-bar select {
+        .filter-bar input[type="text"] {
             padding: 15px;
             border: 1px solid #ddd;
             border-radius: 0;
             background: #f9f9f9;
             font-size: 1em;
-            flex: 1; 
-            min-width: 200px;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .filter-toggle {
+            padding: 15px 25px;
+            border: none;
+            background-color: #a89676;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .filter-toggle:hover {
+            background-color: #8e7d60;
+        }
+
+        .filter-panel {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #f9f9f9;
+            border-top: 5px solid #a89676;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .filter-panel.show {
+            display: grid;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            color: #333;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        .filter-group select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 1em;
+        }
+
+        .clear-filters-btn {
+            padding: 12px;
+            border: none;
+            background-color: #333;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            align-self: end;
+        }
+
+        .clear-filters-btn:hover {
+            background-color: #111;
+        }
+
+        .results-count {
+            margin-bottom: 20px;
+            color: #555;
+            font-weight: bold;
         }
 
         .job-grid {
@@ -40,7 +112,7 @@
             border: none;
             border-top: 5px solid #a89676;
             padding: 30px 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
         }
@@ -63,6 +135,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .job-card .tag {
@@ -73,7 +146,7 @@
         }
 
         .job-card .description {
-            flex-grow: 1; 
+            flex-grow: 1;
             margin-bottom: 25px;
             color: #555;
         }
@@ -119,88 +192,57 @@
 
             <div class="filter-bar">
                 <input type="text" id="searchInput" placeholder="Search by job title, skills, or company...">
-                <select id="categoryFilter">
-                    <option value="all">All Categories</option>
-                    <option value="frontend">Frontend</option>
-                    <option value="backend">Backend</option>
-                    <option value="design">Design</option>
-                    <option value="support">Support</option>
-                </select>
+                <button type="button" class="filter-toggle" id="filterToggle">Filter:</button>
             </div>
 
-            <div class="job-grid" id="jobGrid">
+            <div class="filter-panel" id="filterPanel">
+                <div class="filter-group">
+                    <label for="locationFilter">Location</label>
+                    <select id="locationFilter"><option value="all">All Locations</option></select>
                 </div>
+                <div class="filter-group">
+                    <label for="skillsFilter">Required Skills</label>
+                    <select id="skillsFilter"><option value="all">All Skills</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="educationFilter">Minimum Education</label>
+                    <select id="educationFilter"><option value="all">All Education Levels</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="salaryFilter">Salary</label>
+                    <select id="salaryFilter">
+                        <option value="all">All Salaries</option>
+                        <option value="0-50000">Below $50,000</option>
+                        <option value="50000-75000">$50,000 - $75,000</option>
+                        <option value="75000-100000">$75,000 - $100,000</option>
+                        <option value="100000-125000">$100,000 - $125,000</option>
+                        <option value="125000-999999999">Above $125,000</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="workModeFilter">Form of Work</label>
+                    <select id="workModeFilter"><option value="all">All Work Modes</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="companyFilter">Company Name</label>
+                    <select id="companyFilter"><option value="all">All Companies</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="assetsFilter">Company Assets</label>
+                    <select id="assetsFilter"><option value="all">All Asset Ranges</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="sectorFilter">Company Sector</label>
+                    <select id="sectorFilter"><option value="all">All Sectors</option></select>
+                </div>
+                <button type="button" class="clear-filters-btn" id="clearFilters">Clear Filters</button>
+            </div>
+
+            <p class="results-count" id="resultsCount"></p>
+            <div class="job-grid" id="jobGrid"></div>
         </div>
     </section>
 
-    <script>
-        const menuBtn = document.getElementById('menuBtn');
-        const navLinks = document.getElementById('navLinks');
-        if (menuBtn && navLinks) {
-            menuBtn.addEventListener('click', function () {
-                navLinks.classList.toggle('show');
-            });
-        }
-
-        const jobsData = [
-            { id: 1, title: 'Frontend Developer', company: 'Bright Web Solutions', location: 'Sydney', type: 'Full-time', category: 'frontend', description: 'Entry-level web development role for candidates with strong frontend fundamentals. React experience is a plus.' },
-            { id: 2, title: 'UI/UX Designer', company: 'Pixel Forge', location: 'Melbourne', type: 'Part-time', category: 'design', description: 'Creative role focused on building clean and user-friendly digital interfaces. Figma proficiency required.' },
-            { id: 3, title: 'Junior Backend Engineer', company: 'CodeNest', location: 'Brisbane', type: 'Graduate', category: 'backend', description: 'Great opportunity for graduates looking to grow in a supportive development team using Java and SQL.' },
-            { id: 4, title: 'IT Support Analyst', company: 'TechBridge', location: 'Perth', type: 'Full-time', category: 'support', description: 'Help clients solve technical issues and maintain strong service experiences. Excellent communication skills needed.' },
-            { id: 5, title: 'Senior Frontend Engineer', company: 'GlobalTech', location: 'Remote', type: 'Contract', category: 'frontend', description: 'Lead frontend architecture using Vue.js. 5+ years of experience required.' },
-            { id: 6, title: 'Product Designer', company: 'InnovateCorp', location: 'Sydney', type: 'Full-time', category: 'design', description: 'End-to-end product design from user research to high-fidelity prototyping.' }
-        ];
-
-        const jobGrid = document.getElementById('jobGrid');
-        const searchInput = document.getElementById('searchInput');
-        const categoryFilter = document.getElementById('categoryFilter');
-
-        function renderJobs(jobsToRender) {
-            jobGrid.innerHTML = ''; 
-
-            if (jobsToRender.length === 0) {
-                jobGrid.innerHTML = '<p>No jobs found matching your criteria.</p>';
-                return;
-            }
-
-            jobsToRender.forEach(job => {
-                const card = document.createElement('div');
-                card.className = 'job-card';
-                card.innerHTML = `
-                    <h3>${job.title}</h3>
-                    <div class="company">${job.company}</div>
-                    <div class="tags">
-                        <span class="tag">${job.location}</span>
-                        <span class="tag">${job.type}</span>
-                    </div>
-                    <p class="description">${job.description}</p>
-                    <a href="#" class="apply-btn">Apply Now</a>
-                `;
-                jobGrid.appendChild(card);
-            });
-        }
-
-        function filterJobs() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const selectedCategory = categoryFilter.value;
-
-            const filteredJobs = jobsData.filter(job => {
-                const matchesSearch = job.title.toLowerCase().includes(searchTerm) ||
-                                      job.company.toLowerCase().includes(searchTerm) ||
-                                      job.description.toLowerCase().includes(searchTerm);
-                
-                const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
-
-                return matchesSearch && matchesCategory;
-            });
-
-            renderJobs(filteredJobs);
-        }
-
-        searchInput.addEventListener('input', filterJobs);
-        categoryFilter.addEventListener('change', filterJobs);
-
-        renderJobs(jobsData);
-    </script>
+    <script src="Backend/filter.js"></script>
 </body>
 </html>
