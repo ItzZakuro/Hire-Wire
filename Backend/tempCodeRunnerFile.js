@@ -1,6 +1,15 @@
 const express = require('express');
 const app = express();
+
+app.use(express.json());
+
 const path = require('path');
+
+const jobsRoutes = require('./routes/jobs');
+app.use('/api/jobs', jobsRoutes);
+
+const candidatesRoutes = require('./routes/candidates');
+app.use('/api/candidates', candidatesRoutes);
 
 // frontend files
 app.use(express.static(path.join(__dirname, '../Code Files')));
