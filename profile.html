@@ -5,23 +5,27 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="main.css">
         <script src="main.js" defer></script>
-        <title>HireWire</title>
+        <title>HireWire - Profile</title>
         <style>
-            .upload{
-                display: flex;
-                border: 1px solid #ddd;
-                padding: 20px 20px;
-                background-color:azure;
-                margin-top: 10px;
-                margin-left: 30px;
-                margin-right: 30px;
+            .premium-card {
+                background-color: #fff;
+                padding: 40px;
+                border-top: 5px solid #a89676;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+                margin: 20px auto;
+            }
+            .profilePicture img {
+                border-bottom: 5px solid #a89676; 
+            }
+            .editProfile input, .editProfile textarea {
+                background: #fff; 
             }
         </style>
     </head>
     <body>
         <header>
             <div class="container nav">
-                <div class="logo">HIRE WIRE</div>
+                <div class="logo">H / W<br>HIRE WIRE</div>
                 <button class="menuBtn" id="menuBtn">Menu</button>
                 <nav class="navLinks" id="navLinks">
                     <a href="main.html">Home</a>
@@ -34,66 +38,70 @@
                 </nav>
             </div>
         </header>
-        <section class="profile">
-            <div class="profileHeader">
-                <h1 class="sectionTitle">Your Profile</h1>
-                <p class="sectionText">View and edit your profile information, including your skills and experiences.</p>
-                <div class="profileGrid">
+        
+        <section class="profile bg-white">
+            <div class="container">
+                <h1 class="accent-title">Your Profile</h1>
+                <p class="sectionText" style="text-align: center; margin-bottom: 40px;">View and edit your profile information, including your skills and experiences.</p>
+                <div class="profileGrid premium-card">
                     <div class="profilePicture">
                         <img src="img1.jpg" alt="Candidate profile" />
                     </div>
                     <div class="profileCard">
-                        <h2>Profile Information</h2>
-                        <p id="name">Name: Alex Carter</p>
-                        <p id="email">Email: alexcarter@gmail.com</p>
-                        <p id="phone">Phone: +61 476752866</p>
+                        <h2 style="margin-bottom: 15px; font-family: Impact, sans-serif;">Profile Information</h2>
+                        <p id="name"><strong>Name:</strong> Alex Carter</p>
+                        <p id="email"><strong>Email:</strong> alexcarter@gmail.com</p>
+                        <p id="phone"><strong>Phone:</strong> +61 476752866</p>
                     
-                        <h2>More about me</h2>
+                        <h2 style="margin-top: 40px; margin-bottom: 15px; font-family: Impact, sans-serif;">More about me</h2>
                         <div class="candidateInfo">
-                            <h3>Education</h3> 
+                            <h3 style="color: #a89676;">Education</h3> 
                             <p id="university">University of Technology Sydney</p>
                             <p id="major">Bachelor of Science in Computer Science</p>
-                            <p id="educationDetail">I graduated in December 2022 and my major is Frontend Development. I love creating interactive websites and applications.</p>
+                            <p id="educationDetail" style="color: #555;">I graduated in December 2022 and my major is Frontend Development. I love creating interactive websites and applications.</p>
                         </div>
-                        <div class="candidateInfo">
-                            <h3>Years of Experience</h3>
-                            <p id="experience">1 year internship experience, 3 years working experience </p>
-                            
+                        <div class="candidateInfo" style="margin-top: 20px;">
+                            <h3 style="color: #a89676;">Years of Experience</h3>
+                            <p id="experience">1 year internship experience, 3 years working experience</p>
                         </div>
-                        <div class="candidateInfo">
-                            <h3>Skills</h3>
+                        <div class="candidateInfo" style="margin-top: 20px;">
+                            <h3 style="color: #a89676;">Skills</h3>
                             <p id="skills">HTML, CSS, JavaScript, React</p>
-                            <p id="skillsDetail">I have experience building responsive websites and web applications using these technologies.</p>
+                            <p id="skillsDetail" style="color: #555;">I have experience building responsive websites and web applications using these technologies.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section> 
-        <section>
-            <div class="editProfile">
-                <h2>Edit Profile</h2>
-                <p>You can update your information with the form below.</p>
-                <form id="editProfileForm">
-                    <input type="text" id="newName" name="name" placeholder="Name" />
-                    <input type="email" id="newEmail" name="email" placeholder="Email" />
-                    <input type="tel" id="newPhone" name="phone" placeholder="Phone" />
-                    <textarea id="newUni" name="university" placeholder="University"></textarea>
+
+        <section class="bg-khaki">
+            <div class="container editProfile">
+                <h2 class="accent-title">Edit Profile</h2>
+                <p style="text-align: center; margin-bottom: 30px;">You can update your information with the form below.</p>
+                <form id="editProfileForm" style="max-width: 800px; margin: auto;">
+                    <input type="text" id="newName" name="name" placeholder="Name" autocomplete="name" />
+                    <input type="email" id="newEmail" name="email" placeholder="Email" autocomplete="email" />
+                    <input type="tel" id="newPhone" name="phone" placeholder="Phone" autocomplete="tel" />
+                    <textarea id="newUni" name="university" placeholder="University" autocomplete="organization"></textarea>
                     <textarea id="newMajor" name="major" placeholder="Major"></textarea>
                     <textarea id="newEducationDetail" name="educationDetail" placeholder="Education Detail"></textarea>
                     <textarea id="newExperience" name="experience" placeholder="Experience"></textarea>
                     <textarea id="newSkills" name="skills" placeholder="Skills"></textarea>
                     <textarea id="newSkillsDetail" name="skillsDetail" placeholder="Skills Detail"></textarea>
 
-                    <button type="submit" id="saveBtn">Save</button>
+                    <button class="btn" type="submit" id="saveBtn" style="background: #504e4a;">Save Changes</button>
                 </form>
             </div>
         </section>
-        <section class="upload">
-            <div class="uploadResume">
-                <h2>Upload Resume</h2>
-                <p>Upload your latest resume to keep your profile up to date.</p>
-                <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" />
-                <button id="uploadBtn">Upload Resume</button>
+
+        <section class="bg-dark">
+            <div class="container upload">
+                <div class="premium-card" style="max-width: 600px; text-align: center;">
+                    <h2 style="font-family: Impact, sans-serif; margin-bottom: 10px; color: #333;">Upload Resume</h2>
+                    <p style="color: #555; margin-bottom: 20px;">Upload your latest resume to keep your profile up to date.</p>
+                    <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="background: #f9f9f9; color: #333;" />
+                    <button class="btn" id="uploadBtn" style="width: 100%; margin-top: 10px;">Upload Resume</button>
+                </div>
             </div>
         </section>
     </body>

@@ -10,7 +10,7 @@
     <body>
         <header>
             <div class="container nav">
-                <div class="logo">HIRE WIRE</div>
+                <div class="logo">H / W<br>HIRE WIRE</div>
                 <button class="menuBtn" id="menuBtn">Menu</button>
                 <nav class="navLinks" id="navLinks">
                     <a href="main.html">Home</a>
@@ -23,25 +23,26 @@
                 </nav>
             </div>
         </header>
-        <section class="intro" id="home">
+
+        <section class="intro bg-dark" id="home">
             <div class="container heroContent">
-                <h1>Hire Wire: Employee-to-Employer Matchmaking</h1>
-                <p>Hire Wire helps employers find candidates and helps job seekers find roles that match their profile</p>
+                <h1>Employee-to-Employer Matchmaking</h1>
+                <p>Hire Wire helps employers find candidates and helps job seekers find roles that match their profile.</p>
                 <a class="btn" href="#contact">Start Hiring</a>
             </div>
         </section>
-        <section id="about">
+
+        <section id="about" class="bg-khaki">
             <div class="container aboutGrid">
-                <h3>Smarter Employee-Employer Matching</h3>
+                <h3 class="accent-title">Our Philosophy</h3>
                 <p>Hire Wire is a matching platform designed to bring employers and employees together in one simple place. Businesses can post opportunities, and job seekers can create profiles to showcase their strengths.</p>
                 <p>Our goal is to make recruitment easier, faster, and more relevant by focusing on skills, job preferences, and workplace fit.</p>
-                <a class="btn" href="#services">Explore Services</a>
             </div>
         </section>
-        <section id="services">
+
+        <section id="services" class="bg-white">
             <div class="container">
-                <h2 class="sectionTitle">Our Services</h2>
-                <p class="sectionText">Hire Wire supports both employers and employees throughout the recruitment process.</p>
+                <h2 class="accent-title">Practice Areas</h2>
                 <div class="practiceGrid">
                     <div class="card">
                         <h3>For Employers</h3>
@@ -58,59 +59,50 @@
                 </div>
             </div>
         </section>
-        <section id="matches">
+
+        <section id="matches" class="bg-dark">
             <div class="container">
-                <h2 class="sectionTitle">Featured Matches</h2>
-                <p class="sectionText">Examples of the kinds of candidates and employers that can connect through Hire Wire.</p>
+                <h2 class="accent-title">Featured Matches</h2>
                 <div class="teamGrid">
                     <div class="teamMember">
                         <img src="img1.jpg" alt="Candidate profile" />
                         <div class="teamInfo">
                             <h3>Alex Carter</h3>
-                            <p>Frontend Developer seeking junior web roles</p>
+                            <p>Frontend Developer seeking junior web roles.</p>
                         </div>
                     </div>
                     <div class="teamMember">
                         <img src="img2.jpg" alt="Candidate profile" />
                         <div class="teamInfo">
                             <h3>Priya Singh</h3>
-                            <p>HR Coordinator hiring graduate analysts</p>
+                            <p>HR Coordinator hiring graduate analysts.</p>
                         </div>
                     </div>
                     <div class="teamMember">
                         <img src="img3.jpg" alt="Candidate profile" />
                         <div class="teamInfo">
                             <h3>Daniel Lee</h3>
-                            <p>Software Engineer open to full-time opportunities</p>
+                            <p>Software Engineer open to full-time opportunities.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        <section id="contact">
+
+        <section id="contact" class="bg-khaki">
             <div class="container">
-                <h2 class="sectionTitle">Contact Hire Wire</h2>
-                <p class="sectionText">
-                    Get in touch to learn more about hiring, job applications, or how our matching platform works.
-                </p>
+                <h2 class="accent-title">Contact Us.</h2>
                 <div class="contactGrid">
                     <div class="contactInfo">
-                        <p><strong>Address:</strong> 100 Market Street, Sydney NSW</p>
-                        <p><strong>Phone:</strong> (02) 9000 1234</p>
-                        <p><strong>Email:</strong> support@wirehire.com</p>
-                        <p><strong>Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM</p>
+                        <p><strong>Address:</strong><br>100 Market Street<br>Sydney NSW, 2000</p><br>
+                        <p><strong>Email:</strong><br>support@wirehire.com</p><br>
+                        <p><strong>Phone:</strong><br>(02) 9000 1234</p>
                     </div>
                     <form id="contactForm">
-                        <div class="field">
-                            <input type="text" id="name" placeholder="Your Name" required />
-                        </div>
-                        <div class="field">
-                            <input type="email" id="email" placeholder="Your Email" required />
-                        </div>
-                        <div class="field">
-                            <textarea id="details" placeholder="Tell us if you are hiring or looking for work" required></textarea>
-                        </div>
-                        <button class="btn" type="submit">Send Message</button>
+                        <input type="text" id="name" name="name" placeholder="Your Name *" autocomplete="name" required />
+                        <input type="email" id="email" name="email" placeholder="Your Email *" autocomplete="email" required />
+                        <textarea id="details" name="details" placeholder="Tell us if you are hiring or looking for work..." required></textarea>
+                        <button class="btn" type="submit" style="background: #504e4a;">Submit</button>
                         <div class="message" id="formMessage"></div>
                     </form>
                 </div>
