@@ -5,26 +5,46 @@ Date: 12/04/2026
 
 
 Database Name: HireWireDB
+
+
+Table Name #1: jobSeekers (this is for employee/candidate data)
 No. Of Rows: 1000
-
-
-Table Name #1: jobSeekers (this is for employee data)
 Columns:
-	jobSeekerID		int,
-    firstName		varchar(100),
-    lastName		varchar(100),
-	age				int,
-    gender			varchar(20),
-    email			varchar(200),
-    phone			bigint,
-    educationLevel	varchar(100),
-    majorCode		int,
-    majorStudy		varchar(1000),
-    studyCategory	varchar(1000),
-    experience		int
+	jobSeekerID			int,
+    firstName			varchar(300),
+    lastName			varchar(300),
+	age					int,
+    gender				varchar(300),
+    email				varchar(1000),
+    phone				varchar(1000),
+    educationLevel		varchar(1000),
+    majorCode			int,
+    majorStudy			varchar(1000),
+    studyCategory		varchar(1000),
+    yearsExperience		int,
+    workExperience		varchar(1000),
+    preferredLocation	varchar(300),
+    preferredWorkMode	varchar(300),
+    skills				varchar(6000)
 
 
-Table Name #2: (this is for job/employer data)
+Table Name #2: jobListings (this is for job/employer data)
+No. Of Rows: 1000
+Columns:
+	jobID				int,
+    jobTitle			text,
+    jobDescription		longtext,
+	jobLocation			text,
+    educationLevel		text,
+    requiredSkills		longtext,
+    experience			int,
+    salary				decimal(10,2),
+    workMode			varchar(50), 
+    companyName			varchar(100),
+    companyAssets		text,
+    noOfEmployees		int,
+    companyCeo			varchar(100),
+    companySector		varchar(100)
 
 =====================================================*/
 
