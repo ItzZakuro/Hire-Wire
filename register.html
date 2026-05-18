@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="main.css">
+        <script src="main.js" defer></script> 
+        <title>HireWire - Register</title>
+        <style>
+            .registerSection {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 80vh;
+                background-color: #f4f4f4;
+                padding: 50px 0;
+            }
+            .registerCard {
+                background: white;
+                padding: 50px 40px;
+                border-top: 5px solid #a89676; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+                width: 100%;
+                max-width: 500px;
+            }
+            .file-upload-group {
+                margin-bottom: 25px;
+                text-align: left;
+            }
+            .file-upload-group label {
+                display: block;
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 8px;
+                font-size: 0.9em;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="container nav">
+                <div class="logo">H / W<br>HIRE WIRE</div>
+                <button class="menuBtn" id="menuBtn">Menu</button>
+                <nav class="navLinks" id="navLinks">
+                    <a href="main.html">Home</a>
+                    <a href="job_listings.html">Job Listings</a>
+                    <a href="candidate_listings.html">Candidate Listings</a>
+                    <a href="candidate.html">Candidate Matching</a>
+                    <a href="employer.html">Employee matching</a>
+                    <a href="profile.html">Profile</a>
+                    <a href="login.html">Log In</a>
+                </nav>
+            </div>
+        </header>
+
+        <section class="registerSection">
+            <div class="registerCard">
+                <h2 class="accent-title" style="font-size: 2rem; margin-bottom: 30px;">Create Profile</h2>
+                <form id="registerForm">
+                    <input type="text" id="regName" placeholder="Full Name *" required style="background: #f9f9f9;" />
+                    <input type="email" id="regEmail" placeholder="Email Address *" required style="background: #f9f9f9;" />
+                    <input type="password" id="regPassword" placeholder="Password *" required minlength="6" style="background: #f9f9f9;" />
+                    
+                    <div class="file-upload-group">
+                        <label>Upload Profile Picture (Optional)</label>
+                        <input type="file" id="regProfilePic" accept="image/*" style="background: #f9f9f9;" />
+                    </div>
+
+                    <div class="file-upload-group">
+                        <label>Upload Resume (PDF, DOCX) *</label>
+                        <input type="file" id="regResume" accept=".pdf,.doc,.docx" required style="background: #f9f9f9;" />
+                    </div>
+
+                    <button class="btn" type="submit" style="width: 100%; background: #504e4a;">Register</button>
+                    <div class="message" id="regMessage" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
+                </form>
+
+                <div style="text-align: center; margin-top: 25px; font-size: 0.9em; color: #555;">
+                    Already have an account? <a href="login.html" style="color: #a89676; font-weight: bold; text-decoration: none;">Log in here</a>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
