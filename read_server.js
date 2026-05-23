@@ -27,7 +27,8 @@ app.use(express.json()); // allow server to read JSON
 
 // give database connection info
 const db = mysql.createConnection({
-  host: "localhost",
+  host: "127.0.0.1",
+  port: 3306,
   user: "root",
   password: "PotatoFarm28",
   database: "hirewiredb"
@@ -47,30 +48,41 @@ db.connect(err => {
 // endpoint for job listings/employers (returns all job listing data)
 app.get("/api/jobListings", (req, res) => {
     // console.log("API HIT: /api/jobListings"); // debug
-  const sql = "SELECT * FROM jobListings"; // adjust later to filter for certain jobs
-
-  db.query(sql, (err, results) => { // sends sql query to database
+  db.query('SELECT * FROM jobListings', (err, results) => { // sends sql query to database
     // console.log("QUERY CALLBACK REACHED"); // debug
     
     // error handling
-    if (err) {
+    if (err) return res.status(50).json({ error: err.message });
         // console.error("SQL ERROR:", err); // debug
-      return res.status(500).json(err); 
-    }
-    // console.log("RESULTS:", results); // debug
+    
+        // console.log("RESULTS:", results); // debug
     res.json(results); // send data to frontend by converting data to json
   });
 });
 
+
+//--------------------------------------------
+// ── Single job by ID (for the swipe card) ──────────
+app.get('/api/joblistings/:id', (req, res) => {
+  db.query(
+    'SELECT * FROM joblistings WHERE id = ?',
+    [req.params.id],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (results.length === 0) return res.status(404).json({ error: 'Not found' });
+      res.json(results[0]);
+    }
+  );
+});
+//--------------------------------------------
+
+
 // endpoint for job seekers/candidates (returns all candidate data)
 app.get("/api/jobSeekers", (req, res) => { // tells the server to run this
-  const sql = "SELECT * FROM jobSeekers"; // adjust later to filter for certain candidates
-
-  db.query(sql, (err, results) => { // sends sql query to database 
+  db.query('SELECT * FROM jobSeekers', (err, results) => { // sends sql query to database 
     // error handling
-    if (err) {
-      return res.status(500).json(err);
-    }
+    if (err) return res.status(500).json({ error: err.message });
+
     res.json(results); // send data to frontend by converting data to json
   });
 });
