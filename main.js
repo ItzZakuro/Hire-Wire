@@ -64,14 +64,52 @@ if (phoneElement) {
 }
 
 const uploadBtn = document.getElementById('uploadBtn');
-const profileResumeInput = document.getElementById('resumeInput'); 
-if (uploadBtn && profileResumeInput) { 
-    uploadBtn.addEventListener('click', function() {
-        if (profileResumeInput.files.length > 0) {
-            const fileName = profileResumeInput.files[0].name;
-            alert(`Success! Your resume "${fileName}" has been uploaded.`); 
-        } else {
-            alert("Please select a file first."); 
+const profileResumeInput = document.getElementById('resumeInput');
+
+if (uploadBtn && profileResumeInput) {
+    uploadBtn.addEventListener('click', async function () {
+        if (profileResumeInput.files.length === 0) {
+            alert("Please select a file first.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('resume', profileResumeInput.files[0]);
+
+        try {
+            uploadBtn.textContent = "Uploading...";
+
+            const response = await fetch('/api/candidates/resume/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(`Resume uploaded successfully: ${result.filename}`);
+
+                let resumeLink = document.getElementById('resumeLink');
+
+                if (!resumeLink) {
+                    resumeLink = document.createElement('a');
+                    resumeLink.id = 'resumeLink';
+                    resumeLink.textContent = 'View uploaded resume';
+                    resumeLink.target = '_blank';
+                    resumeLink.style.display = 'block';
+                    resumeLink.style.marginTop = '15px';
+                    uploadBtn.insertAdjacentElement('afterend', resumeLink);
+                }
+
+                resumeLink.href = result.path;
+            } else {
+                alert(result.error || "Resume upload failed.");
+            }
+        } catch (error) {
+            console.error("Resume upload error:", error);
+            alert("Connection failed. Please make sure the backend server is running.");
+        } finally {
+            uploadBtn.textContent = "Upload Resume";
         }
     });
 }
