@@ -235,42 +235,20 @@ function renderJobs(jobsToRender) {
     }
 }
 
-function filterJobs() {
-    var searchTerm = searchInput.value.toLowerCase();
-    var selectedLocation = locationFilter.value;
-    var selectedSkill = skillsFilter.value;
-    var selectedEducation = educationFilter.value;
-    var selectedSalary = salaryFilter.value;
-    var selectedWorkMode = workModeFilter.value;
-    var selectedCompany = companyFilter.value;
-    var selectedAssets = assetsFilter.value;
-    var selectedSector = sectorFilter.value;
+async function performFuzzySearch(searchTerm) {
+    const response = await fetch('/api/jobs/search?q=' + encodeURIComponent(searchTerm));
 
-    var filteredJobs = jobsData.filter(function (job) {
-        var matchesSearch = job.jobTitle.toLowerCase().indexOf(searchTerm) !== -1 ||
-                            job.companyName.toLowerCase().indexOf(searchTerm) !== -1 ||
-                            job.requiredSkills.toLowerCase().indexOf(searchTerm) !== -1 ||
-                            job.jobDescription.toLowerCase().indexOf(searchTerm) !== -1;
+    return await response.json();
+}
 
-        var matchesLocation = valueMatchesDropdown(job.jobLocation, selectedLocation);
-        var matchesSkill = selectedSkill === 'all' || job.requiredSkills.indexOf(selectedSkill) !== -1;
-        var matchesEducation = valueMatchesDropdown(job.educationLevel, selectedEducation);
-        var matchesSalary = valueMatchesRange(job.salary, selectedSalary);
-        var matchesWorkMode = valueMatchesDropdown(job.workMode, selectedWorkMode);
-        var matchesCompany = valueMatchesDropdown(job.companyName, selectedCompany);
-        var matchesAssets = selectedAssets === 'all' || getAssetRange(job.companyAssets) === selectedAssets;
-        var matchesSector = valueMatchesDropdown(job.companySector, selectedSector);
+async function filterJobs() {
+    var searchTerm = searchInput.value.trim();
 
-        return matchesSearch &&
-               matchesLocation &&
-               matchesSkill &&
-               matchesEducation &&
-               matchesSalary &&
-               matchesWorkMode &&
-               matchesCompany &&
-               matchesAssets &&
-               matchesSector;
-    });
+    let filteredJobs = jobsData;
+
+    if (searchTerm !== '') {
+        filteredJobs = await performFuzzySearch(searchTerm);
+    }
 
     renderJobs(filteredJobs);
 }
@@ -296,15 +274,15 @@ for (var i = 0; i < allFilters.length; i += 1) {
     allFilters[i].addEventListener('change', filterJobs);
 }
 
-fetch('Database/jobListings.csv')
+fetch('/api/jobs')
     .then(function (response) {
-        return response.text();
+        return response.json();
     })
-    .then(function (csvText) {
-        jobsData = convertRowsToJobs(parseCsv(csvText));
+    .then(function (jobs) {
+        jobsData = jobs;
         setupFilterOptions();
         renderJobs(jobsData);
     })
     .catch(function () {
-        jobGrid.innerHTML = '<p>Unable to load job listings. Please run this website through a local server so the CSV file can be loaded.</p>';
+        jobGrid.innerHTML = '<p>Unable to load job listings.</p>';
     });
