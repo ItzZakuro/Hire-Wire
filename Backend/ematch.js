@@ -7,179 +7,90 @@ if (menuBtn && navLinks) {
     });
 }
 
+
+// Backend/cmatch.js
+
 let candidates = [];
 let currentIndex = 0;
-let likedCandidates = 0;
-let passedCandidates = 0;
+let likedCount = 0;
+let passedCount = 0;
 
-const candidateImage = document.getElementById('candidateImage');
-const candidateName = document.getElementById('candidateName');
-const candidateRole = document.getElementById('candidateRole');
-const candidateEducation = document.getElementById('candidateEducation');
-const candidateExperience = document.getElementById('candidateExperience');
-const candidateSkills = document.getElementById('candidateSkills');
-const candidateDescription = document.getElementById('candidateDescription');
-const statusText = document.getElementById('statusText');
-const likedCount = document.getElementById('likedCount');
-const passedCount = document.getElementById('passedCount');
-const likeBtn = document.getElementById('likeBtn');
-const passBtn = document.getElementById('passBtn');
-const swipeCard = document.getElementById('swipeCard');
-
-function parseCsv(csvText) {
-    const rows = [];
-    let currentRow = [];
-    let currentValue = '';
-    let insideQuotes = false;
-
-    for (let i = 0; i < csvText.length; i += 1) {
-        const char = csvText[i];
-        const nextChar = csvText[i + 1];
-
-        if (char === '"' && insideQuotes && nextChar === '"') {
-            currentValue += '"';
-            i += 1;
-        } else if (char === '"') {
-            insideQuotes = !insideQuotes;
-        } else if (char === ',' && !insideQuotes) {
-            currentRow.push(currentValue.trim());
-            currentValue = '';
-        } else if ((char === '\n' || char === '\r') && !insideQuotes) {
-            if (char === '\r' && nextChar === '\n') {
-                i += 1;
-            }
-
-            currentRow.push(currentValue.trim());
-            if (currentRow.some(function (value) { return value !== ''; })) {
-                rows.push(currentRow);
-            }
-            currentRow = [];
-            currentValue = '';
+// Load candidates from the API on page load
+async function loadCandidates() {
+    try {
+        const response = await fetch('http://localhost:3000/api/jobSeekers');
+        candidates = await response.json();
+        if (candidates.length > 0) {
+            showCard(candidates[currentIndex]);
         } else {
-            currentValue += char;
+            document.getElementById('fullName').textContent = 'No employees available';
         }
+    } catch (err) {
+        console.error('Failed to load candidates:', err);
     }
-
-    currentRow.push(currentValue.trim());
-    if (currentRow.some(function (value) { return value !== ''; })) {
-        rows.push(currentRow);
-    }
-
-    return rows;
 }
 
-function rowsToObjects(rows) {
-    const headers = rows[0];
-    const objects = [];
+// Populate the swipe/match card with a candidate object
+function showCard(job) {
+    document.getElementById('firstName').textContent         = job.firstName;
+    document.getElementById('lastName').textContent          = job.lastName;
+    
+    const fullName = `${candidates.firstName} ${candidates.lastName}`;
+    document.getElementById('fullName').textContent = fullName;
+    
+    document.getElementById('age').textContent               = job.age;
+    document.getElementById('gender').textContent            = job.gender;
+    document.getElementById('email').textContent             = job.email;
+    document.getElementById('phone').textContent             = job.phone;
+    document.getElementById('educationLevel').textContent    = job.educationLevel;
+    document.getElementById('majorCode').textContent         = job.majorCode;
+    document.getElementById('majorStudy').textContent        = job.majorStudy;
+    document.getElementById('yearsExperience').textContent   = job.yearsExperience;
+    document.getElementById('workExperience').textContent    = job.workExperience;
+    document.getElementById('preferredLocation').textContent = job.preferredLocation;
+    document.getElementById('preferredWorkMode').textContent = job.preferredWorkMode;
+    document.getElementById('skills').textContent            = job.skills;
 
-    for (let i = 1; i < rows.length; i += 1) {
-        const row = rows[i];
-        const object = {};
+    /*
+    // Add $ and , to SALARY
+    const formattedSalary = '$' + Number(job.salary).toLocaleString();
+    document.getElementById('salary').textContent = formattedSalary;
 
-        for (let j = 0; j < headers.length; j += 1) {
-            object[headers[j]] = row[j] || '';
-        }
+    // Only show first 4 SKILLS
+    const allSkills = job.requiredSkills.split(',');
+    const topSkills = allSkills.slice(0, 4).join(', ');
+    document.getElementById('jobSkills').textContent = topSkills;
 
-        objects.push(object);
-    }
-
-    return objects;
+    // Show only first 2 sentences of DESCRIPTION
+    const allSentences = job.jobDescription.split('.');
+    const shortDesc = allSentences.slice(0, 2).join('.') + '.';
+    document.getElementById('jobDescription').textContent = shortDesc;
+    */
 }
 
-function shortenText(text, maxLength) {
-    if (!text) {
-        return 'No description available.';
-    }
-
-    if (text.length <= maxLength) {
-        return text;
-    }
-
-    return text.substring(0, maxLength) + '...';
-}
-
-function makeCandidateFromCsvRow(row, index) {
-    const fullName = (row['First Name'] + ' ' + row['Last Name']).trim();
-
-    return {
-        name: fullName || 'Unnamed Candidate',
-        role: row.workExperience || row.Major_Study || 'Role not listed',
-        education: row.Education || 'Education not listed',
-        experience: row.Experience ? row.Experience + ' years experience' : 'Experience not listed',
-        skills: row.skills || 'Skills not listed',
-        description: shortenText('Preferred location: ' + (row.preferredLocation || 'Not listed') + '. Preferred work mode: ' + (row.preferredWorkMode || 'Not listed') + '.', 420)
-    };
-}
-
-function loadCandidates() {
-    statusText.textContent = 'Loading candidate matches...';
-
-    fetch('Database/jobSeekers.csv')
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error('Could not load jobSeekers.csv');
-            }
-            return response.text();
-        })
-        .then(function (csvText) {
-            const rows = parseCsv(csvText);
-            const csvCandidates = rowsToObjects(rows);
-
-            candidates = csvCandidates.map(makeCandidateFromCsvRow);
-            currentIndex = 0;
-            likedCandidates = 0;
-            passedCandidates = 0;
-            likedCount.textContent = likedCandidates;
-            passedCount.textContent = passedCandidates;
-
-            statusText.textContent = 'No action taken yet.';
-            showCandidate();
-        })
-        .catch(function (error) {
-            swipeCard.innerHTML = '<h2>Unable to load candidates</h2><p>Please check that Database/jobSeekers.csv exists and that the website is being run through a local server.</p>';
-            statusText.textContent = error.message;
-        });
-}
-
-function showCandidate() {
-    if (currentIndex >= candidates.length) {
-        swipeCard.innerHTML = '<h2>No more candidates</h2><p>You have reviewed all available matches.</p>';
-        statusText.textContent = 'Finished reviewing candidates.';
-        return;
-    }
-
-    const candidate = candidates[currentIndex];
-    candidateName.textContent = candidate.name;
-    candidateRole.textContent = candidate.role;
-    candidateEducation.textContent = candidate.education;
-    candidateExperience.textContent = candidate.experience;
-    candidateSkills.textContent = candidate.skills;
-    candidateDescription.textContent = candidate.description;
-}
-
-function likeCandidate() {
+function nextCard() {
+    currentIndex++;
     if (currentIndex < candidates.length) {
-        statusText.textContent = 'You liked ' + candidates[currentIndex].name + ' for the ' + candidates[currentIndex].role + ' role.';
-        likedCandidates++;
-        likedCount.textContent = likedCandidates;
-        currentIndex++;
-        showCandidate();
+        showCard(jobs[currentIndex]);
+    } else {
+        document.getElementById('swipeCard').innerHTML = '<h2>No more candidates!</h2>';
     }
 }
 
-function passCandidate() {
-    if (currentIndex < candidates.length) {
-        statusText.textContent = 'You passed on ' + candidates[currentIndex].name + '.';
-        passedCandidates++;
-        passedCount.textContent = passedCandidates;
-        currentIndex++;
-        showCandidate();
-    }
-}
+// Button handlers
+document.getElementById('likeBtn').addEventListener('click', () => {
+    document.getElementById('statusText').textContent = `You liked: ${candidates[currentIndex].fullName}`;
+    likedCount++;
+    document.getElementById('likedCount').textContent = likedCount;
+    nextCard();
+});
 
-if (likeBtn && passBtn) {
-    likeBtn.addEventListener('click', likeCandidate);
-    passBtn.addEventListener('click', passCandidate);
-}
+document.getElementById('passBtn').addEventListener('click', () => {
+    document.getElementById('statusText').textContent = `You passed: ${candidates[currentIndex].fullName}`;
+    passedCount++;
+    document.getElementById('passedCount').textContent = passedCount;
+    nextCard();
+});
+
 
 loadCandidates();
