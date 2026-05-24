@@ -34,14 +34,14 @@ async function loadJobs() {
 function showCard(job) {
     document.getElementById('jobTitle').textContent       = job.jobTitle;
     document.getElementById('companyName').textContent    = job.companyName;
-    document.getElementById('companyAssets').textContent  = job.companyAssets;
-    document.getElementById('noOfEmployees').textContent  = job.noOfEmployees;
-    document.getElementById('companyCeo').textContent     = job.companyCeo;
-    document.getElementById('companySector').textContent  = job.companySector;
+    //document.getElementById('companyAssets').textContent  = job.companyAssets;
+    //document.getElementById('noOfEmployees').textContent  = job.noOfEmployees;
+    //document.getElementById('companyCeo').textContent     = job.companyCeo;
+    //document.getElementById('companySector').textContent  = job.companySector;
     document.getElementById('jobLocation').textContent    = job.jobLocation;
     document.getElementById('jobType').textContent        = job.workMode;
-    document.getElementById('educationLevel').textContent = job.educationLevel;
-    document.getElementById('experience').textContent     = job.experience;
+    //document.getElementById('educationLevel').textContent = job.educationLevel;
+    //document.getElementById('experience').textContent     = job.experience;
 
     // Add $ and , to SALARY
     const formattedSalary = '$' + Number(job.salary).toLocaleString();
