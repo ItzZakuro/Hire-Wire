@@ -39,7 +39,7 @@
                 <p class="sectionText">Find the best talent for your company based on skills and experience.</p>
                 
                 <div class="swipeCard" id="swipeCard">
-                    <h2 id="candidateName"></h2>
+                    <h2 id="candidateName">Loading...</h2>
                     <p><strong>Target Role:</strong> <span id="candidateRole"></span></p>
                     <p><strong>Education:</strong> <span id="candidateEducation"></span></p>
                     <p><strong>Experience:</strong> <span id="candidateExperience"></span></p>
@@ -59,5 +59,28 @@
                 </div>
             </div>
         </section>
+
+        <!-- NEW SECTION for linking candidate cards to database -->
+        <script>
+            async function loadCandidates() {
+                const response = await fetch('http://localhost:3000/api/jobSeekers');
+                const candidates = await response.json();
+                const container = document.getElementById('jobSeekersContainer');
+
+                container.innerHTML = jobs.map(job => `
+                    <div class="candidateCard">
+                        <h3>${candidates.fullName}</h3>
+                        <p><strong>Experience:</strong> ${candidates.experience}</p>
+                        <p><strong>Education:</strong> ${jcandidatesob.educationLevel}</p>
+                        <p><strong>Years of Experience:</strong> ${candidates.yearsExperience}</p>
+                        <p><strong>Experience:</strong> ${candidates.experience}</p>
+                        <p><strong>Preferred Location:</strong> ${candidates.preferredLocation} years</p>
+                        <p><strong>Skills:</strong> <span id="candidateSkills"></span></p>
+                    </div>
+                `).join('');
+            }
+
+            loadCandidates();
+        </script>
     </body>
 </html>
