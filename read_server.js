@@ -60,9 +60,8 @@ app.get("/api/jobListings", (req, res) => {
   });
 });
 
-
 //--------------------------------------------
-// ── Single job by ID (for the swipe card) ──────────
+// Single job by ID (for the swipe card)
 app.get('/api/joblistings/:id', (req, res) => {
   db.query(
     'SELECT * FROM joblistings WHERE id = ?',
@@ -86,6 +85,21 @@ app.get("/api/jobSeekers", (req, res) => { // tells the server to run this
     res.json(results); // send data to frontend by converting data to json
   });
 });
+
+//--------------------------------------------
+// Single employee/candidate by ID (for the swipe card)
+app.get('/api/jobSeekers/:id', (req, res) => {
+  db.query(
+    'SELECT * FROM jobSeekers WHERE id = ?',
+    [req.params.id],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (results.length === 0) return res.status(404).json({ error: 'Not found' });
+      res.json(results[0]);
+    }
+  );
+});
+//--------------------------------------------
 
 
 
