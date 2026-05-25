@@ -46,12 +46,12 @@ header {
     align-items: center;
 }
 .logo {
-    background: #a89676;
+    background: transparent;
     color: #fff;
-    padding: 15px 20px;
-    font-size: 1.5rem;
-    text-align: center;
-    line-height: 1;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
 }
 .navLinks {
     display: flex;
