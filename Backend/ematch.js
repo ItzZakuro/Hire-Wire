@@ -7,6 +7,15 @@ if (menuBtn && navLinks) {
     });
 }
 
+// shuffle function to randomise top n rows of data
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 let candidates = [];
 let currentIndex = 0;
 let likedCount = 0;
@@ -16,6 +25,7 @@ async function loadCandidates() {
     try {
         const response = await fetch('http://localhost:3000/api/jobSeekers');
         candidates = await response.json();
+        candidates = shuffle(candidates).slice(0, 10); // get top 10 random candidates
         if (candidates.length > 0) {
             showCard(candidates[currentIndex]);
         } else {
@@ -69,4 +79,6 @@ document.getElementById('passBtn').addEventListener('click', () => {
     nextCard();
 });
 
-loadCandidates();
+document.addEventListener('DOMContentLoaded', () => {
+    loadCandidates();
+});

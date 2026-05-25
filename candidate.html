@@ -60,26 +60,6 @@
 
 
         <!-- NEW SECTION for linking job cards to database -->
-        <script>
-            async function loadJobListings() {
-                const response = await fetch('http://localhost:3000/api/jobListings');
-                const jobs = await response.json();
-                const container = document.getElementById('jobListingsContainer');
 
-                container.innerHTML = jobs.map(job => `
-                    <div class="jobCard">
-                        <h3>${job.jobTitle}</h3>
-                        <p><strong>Company:</strong> ${job.companyName}</p>
-                        <p><strong>Location:</strong> ${job.jobLocation}</p>
-                        <p><strong>Work Mode:</strong> ${job.workMode}</p>
-                        <p><strong>Education:</strong> ${job.educationLevel}</p>
-                        <p><strong>Experience:</strong> ${job.experience} years</p>
-                        <p><strong>Salary:</strong> $${job.salary}</p>
-                    </div>
-                `).join('');
-            }
-
-            loadJobListings();
-        </script>
     </body>
 </html>
