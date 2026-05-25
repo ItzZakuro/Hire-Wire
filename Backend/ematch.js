@@ -7,179 +7,78 @@ if (menuBtn && navLinks) {
     });
 }
 
+// shuffle function to randomise top n rows of data
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 let candidates = [];
 let currentIndex = 0;
-let likedCandidates = 0;
-let passedCandidates = 0;
+let likedCount = 0;
+let passedCount = 0;
 
-const candidateImage = document.getElementById('candidateImage');
-const candidateName = document.getElementById('candidateName');
-const candidateRole = document.getElementById('candidateRole');
-const candidateEducation = document.getElementById('candidateEducation');
-const candidateExperience = document.getElementById('candidateExperience');
-const candidateSkills = document.getElementById('candidateSkills');
-const candidateDescription = document.getElementById('candidateDescription');
-const statusText = document.getElementById('statusText');
-const likedCount = document.getElementById('likedCount');
-const passedCount = document.getElementById('passedCount');
-const likeBtn = document.getElementById('likeBtn');
-const passBtn = document.getElementById('passBtn');
-const swipeCard = document.getElementById('swipeCard');
-
-function parseCsv(csvText) {
-    const rows = [];
-    let currentRow = [];
-    let currentValue = '';
-    let insideQuotes = false;
-
-    for (let i = 0; i < csvText.length; i += 1) {
-        const char = csvText[i];
-        const nextChar = csvText[i + 1];
-
-        if (char === '"' && insideQuotes && nextChar === '"') {
-            currentValue += '"';
-            i += 1;
-        } else if (char === '"') {
-            insideQuotes = !insideQuotes;
-        } else if (char === ',' && !insideQuotes) {
-            currentRow.push(currentValue.trim());
-            currentValue = '';
-        } else if ((char === '\n' || char === '\r') && !insideQuotes) {
-            if (char === '\r' && nextChar === '\n') {
-                i += 1;
-            }
-
-            currentRow.push(currentValue.trim());
-            if (currentRow.some(function (value) { return value !== ''; })) {
-                rows.push(currentRow);
-            }
-            currentRow = [];
-            currentValue = '';
+async function loadCandidates() {
+    try {
+        const response = await fetch('http://localhost:3000/api/jobSeekers');
+        candidates = await response.json();
+        candidates = shuffle(candidates).slice(0, 10); // get top 10 random candidates
+        if (candidates.length > 0) {
+            showCard(candidates[currentIndex]);
         } else {
-            currentValue += char;
+            document.getElementById('candidateName').textContent = 'No candidates available';
         }
+    } catch (err) {
+        console.error('Failed to load candidates:', err);
     }
-
-    currentRow.push(currentValue.trim());
-    if (currentRow.some(function (value) { return value !== ''; })) {
-        rows.push(currentRow);
-    }
-
-    return rows;
 }
 
-function rowsToObjects(rows) {
-    const headers = rows[0];
-    const objects = [];
+function showCard(candidate) {
+    // Combine first and last name
+    const fullName = `${candidate.firstName} ${candidate.lastName}`;
+    document.getElementById('candidateName').textContent    = fullName;
 
-    for (let i = 1; i < rows.length; i += 1) {
-        const row = rows[i];
-        const object = {};
+    document.getElementById('candidateRole').textContent        = candidate.preferredWorkMode;
+    document.getElementById('candidateEducation').textContent   = candidate.educationLevel;
+    document.getElementById('candidateExperience').textContent  = candidate.yearsExperience;
+    // document.getElementById('candidateSkills').textContent      = candidate.skills;
+    
+    // Only show first 4 skills
+    const allSkills = candidate.skills.split(',');
+    const topSkills = allSkills.slice(0, 4).join(', ');
+    document.getElementById('candidateSkills').textContent = topSkills;
 
-        for (let j = 0; j < headers.length; j += 1) {
-            object[headers[j]] = row[j] || '';
-        }
-
-        objects.push(object);
-    }
-
-    return objects;
+    document.getElementById('candidateDescription').textContent = candidate.workExperience;
 }
 
-function shortenText(text, maxLength) {
-    if (!text) {
-        return 'No description available.';
-    }
-
-    if (text.length <= maxLength) {
-        return text;
-    }
-
-    return text.substring(0, maxLength) + '...';
-}
-
-function makeCandidateFromCsvRow(row, index) {
-    const fullName = (row['First Name'] + ' ' + row['Last Name']).trim();
-
-    return {
-        name: fullName || 'Unnamed Candidate',
-        role: row.workExperience || row.Major_Study || 'Role not listed',
-        education: row.Education || 'Education not listed',
-        experience: row.Experience ? row.Experience + ' years experience' : 'Experience not listed',
-        skills: row.skills || 'Skills not listed',
-        description: shortenText('Preferred location: ' + (row.preferredLocation || 'Not listed') + '. Preferred work mode: ' + (row.preferredWorkMode || 'Not listed') + '.', 420)
-    };
-}
-
-function loadCandidates() {
-    statusText.textContent = 'Loading candidate matches...';
-
-    fetch('Database/jobSeekers.csv')
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error('Could not load jobSeekers.csv');
-            }
-            return response.text();
-        })
-        .then(function (csvText) {
-            const rows = parseCsv(csvText);
-            const csvCandidates = rowsToObjects(rows);
-
-            candidates = csvCandidates.map(makeCandidateFromCsvRow);
-            currentIndex = 0;
-            likedCandidates = 0;
-            passedCandidates = 0;
-            likedCount.textContent = likedCandidates;
-            passedCount.textContent = passedCandidates;
-
-            statusText.textContent = 'No action taken yet.';
-            showCandidate();
-        })
-        .catch(function (error) {
-            swipeCard.innerHTML = '<h2>Unable to load candidates</h2><p>Please check that Database/jobSeekers.csv exists and that the website is being run through a local server.</p>';
-            statusText.textContent = error.message;
-        });
-}
-
-function showCandidate() {
-    if (currentIndex >= candidates.length) {
-        swipeCard.innerHTML = '<h2>No more candidates</h2><p>You have reviewed all available matches.</p>';
-        statusText.textContent = 'Finished reviewing candidates.';
-        return;
-    }
-
-    const candidate = candidates[currentIndex];
-    candidateName.textContent = candidate.name;
-    candidateRole.textContent = candidate.role;
-    candidateEducation.textContent = candidate.education;
-    candidateExperience.textContent = candidate.experience;
-    candidateSkills.textContent = candidate.skills;
-    candidateDescription.textContent = candidate.description;
-}
-
-function likeCandidate() {
+function nextCard() {
+    currentIndex++;
     if (currentIndex < candidates.length) {
-        statusText.textContent = 'You liked ' + candidates[currentIndex].name + ' for the ' + candidates[currentIndex].role + ' role.';
-        likedCandidates++;
-        likedCount.textContent = likedCandidates;
-        currentIndex++;
-        showCandidate();
+        showCard(candidates[currentIndex]);
+    } else {
+        document.getElementById('swipeCard').innerHTML = '<h2>No more candidates!</h2>';
     }
 }
 
-function passCandidate() {
-    if (currentIndex < candidates.length) {
-        statusText.textContent = 'You passed on ' + candidates[currentIndex].name + '.';
-        passedCandidates++;
-        passedCount.textContent = passedCandidates;
-        currentIndex++;
-        showCandidate();
-    }
-}
+document.getElementById('likeBtn').addEventListener('click', () => {
+    const name = `${candidates[currentIndex].firstName} ${candidates[currentIndex].lastName}`;
+    document.getElementById('statusText').textContent = `You liked: ${name}`;
+    likedCount++;
+    document.getElementById('likedCount').textContent = likedCount;
+    nextCard();
+});
 
-if (likeBtn && passBtn) {
-    likeBtn.addEventListener('click', likeCandidate);
-    passBtn.addEventListener('click', passCandidate);
-}
+document.getElementById('passBtn').addEventListener('click', () => {
+    const name = `${candidates[currentIndex].firstName} ${candidates[currentIndex].lastName}`;
+    document.getElementById('statusText').textContent = `You passed: ${name}`;
+    passedCount++;
+    document.getElementById('passedCount').textContent = passedCount;
+    nextCard();
+});
 
-loadCandidates();
+document.addEventListener('DOMContentLoaded', () => {
+    loadCandidates();
+});

@@ -19,7 +19,7 @@
                     <a href="job_listings.html">Job Listings</a>
                     <a href="candidate_listings.html">Candidate Listings</a>
                     <a href="candidate.html">Candidate Matching</a>
-                    <a href="employer.html">Employee matching</a>
+                    <a href="employer.html">Employer matching</a>
                     <a href="profile.html">Profile</a>
                     <a href="login.html">Log In</a>
                 </nav>
@@ -40,8 +40,8 @@
                 <p class="sectionText">Find the best talent for your company based on skills and experience.</p>
                 
                 <div class="swipeCard" id="swipeCard">
-                    <h2 id="candidateName"></h2>
-                    <p><strong>Target Role:</strong> <span id="candidateRole"></span></p>
+                    <h2 id="candidateName">Loading...</h2>
+                    <p><strong>Preferred Word Mode:</strong> <span id="candidateRole"></span></p>
                     <p><strong>Education:</strong> <span id="candidateEducation"></span></p>
                     <p><strong>Experience:</strong> <span id="candidateExperience"></span></p>
                     <p><strong>Skills:</strong> <span id="candidateSkills"></span></p>
@@ -60,5 +60,28 @@
                 </div>
             </div>
         </section>
+
+        <!-- NEW SECTION for linking candidate cards to database -->
+        <script>
+            async function loadCandidates() {
+                const response = await fetch('http://localhost:3000/api/jobSeekers');
+                const candidates = await response.json();
+                const container = document.getElementById('jobSeekersContainer');
+
+                container.innerHTML = jobs.map(job => `
+                    <div class="candidateCard">
+                        <h3>${candidates.fullName}</h3>
+                        <p><strong>Experience:</strong> ${candidates.experience}</p>
+                        <p><strong>Education:</strong> ${jcandidatesob.educationLevel}</p>
+                        <p><strong>Years of Experience:</strong> ${candidates.yearsExperience}</p>
+                        <p><strong>Experience:</strong> ${candidates.experience}</p>
+                        <p><strong>Preferred Location:</strong> ${candidates.preferredLocation} years</p>
+                        <p><strong>Skills:</strong> <span id="candidateSkills"></span></p>
+                    </div>
+                `).join('');
+            }
+
+            loadCandidates();
+        </script>
     </body>
 </html>
