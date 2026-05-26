@@ -1,3 +1,5 @@
+// THIS DOESN'T WORK ANYMORE
+
 var menuBtn = document.getElementById('menuBtn');
 var navLinks = document.getElementById('navLinks');
 
