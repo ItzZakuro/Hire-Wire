@@ -275,6 +275,24 @@ function filterJobs() {
     renderJobs(filteredJobs);
 }
 
+async function performFuzzySearch(searchTerm) {
+    const response = await fetch('/api/jobs/search?q=' + encodeURIComponent(searchTerm));
+
+    return await response.json();
+}
+
+async function filterJobs() {
+    var searchTerm = searchInput.value.trim();
+
+    let filteredJobs = jobsData;
+
+    if (searchTerm !== '') {
+        filteredJobs = await performFuzzySearch(searchTerm);
+    }
+
+    renderJobs(filteredJobs);
+}
+
 function clearAllFilters() {
     searchInput.value = '';
 
@@ -295,6 +313,19 @@ clearFilters.addEventListener('click', clearAllFilters);
 for (var i = 0; i < allFilters.length; i += 1) {
     allFilters[i].addEventListener('change', filterJobs);
 }
+
+fetch('/api/jobs')
+    .then(function (response) {
+        return response.json();
+    })
+    .then(function (jobs) {
+        jobsData = jobs;
+        setupFilterOptions();
+        renderJobs(jobsData);
+    })
+    .catch(function () {
+        jobGrid.innerHTML = '<p>Unable to load job listings.</p>';
+    });
 
 fetch('Database/jobListings.csv')
     .then(function (response) {
