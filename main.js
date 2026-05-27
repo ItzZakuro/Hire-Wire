@@ -165,7 +165,7 @@ if (registerForm) {
 
 const editProfileForm = document.getElementById('editProfileForm');
 
-if (editProfileForm) {
+/*if (editProfileForm) {
     editProfileForm.addEventListener('submit', async function(event) {
         event.preventDefault(); 
 
@@ -231,5 +231,68 @@ if (editProfileForm) {
             console.error("Fetch error:", error);
             setTimeout(() => { saveBtn.textContent = originalText; saveBtn.style.background = originalBg; }, 2000);
         }
+    });
+}*/
+if (editProfileForm) {
+    editProfileForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const saveBtn = document.getElementById('saveBtn');
+        const originalText = saveBtn.textContent;
+        const originalBg = saveBtn.style.background;
+
+        const profileData = {
+            name: document.getElementById('newName').value.trim(),
+            email: document.getElementById('newEmail').value.trim(),
+            phone: document.getElementById('newPhone').value.trim(),
+            university: document.getElementById('newUni').value.trim(),
+            major: document.getElementById('newMajor').value.trim(),
+            educationDetail: document.getElementById('newEducationDetail').value.trim(),
+            experience: document.getElementById('newExperience').value.trim(),
+            skills: document.getElementById('newSkills').value.trim(),
+            skillsDetail: document.getElementById('newSkillsDetail').value.trim(),
+            // Added new fields from the requirement
+            workingMode: document.getElementById('newWorkingMode').value.trim(),
+            preferredLocation: document.getElementById('newPreferredLocation').value.trim()
+        };
+
+        const allFieldsEmpty =
+            !profileData.name && !profileData.email && !profileData.phone &&
+            !profileData.university && !profileData.major && !profileData.educationDetail &&
+            !profileData.experience && !profileData.skills && !profileData.skillsDetail &&
+            !profileData.workingMode && !profileData.preferredLocation;
+
+        if (allFieldsEmpty) {
+            saveBtn.textContent = "There is nothing to save ✖";
+            saveBtn.style.background = "#d32f2f";
+            setTimeout(() => { saveBtn.textContent = originalText; saveBtn.style.background = originalBg; }, 2000);
+            return;
+        }
+
+        saveBtn.textContent = "Saving...";
+        saveBtn.style.background = "#888";
+
+        if (profileData.name) document.getElementById('name').innerHTML = `<strong>Name:</strong> ${profileData.name}`;
+        if (profileData.email) document.getElementById('email').innerHTML = `<strong>Email:</strong> ${profileData.email}`;
+        if (profileData.phone) document.getElementById('phone').innerHTML = `<strong>Phone:</strong> ${profileData.phone}`;
+                
+        if (profileData.university) document.getElementById('university').textContent = profileData.university;
+        if (profileData.major) document.getElementById('major').textContent = profileData.major;
+        if (profileData.educationDetail) document.getElementById('educationDetail').textContent = profileData.educationDetail;
+                
+        if (profileData.experience) document.getElementById('experience').textContent = profileData.experience;
+                
+        if (profileData.skills) document.getElementById('skills').textContent = profileData.skills;
+        if (profileData.skillsDetail) document.getElementById('skillsDetail').textContent = profileData.skillsDetail;
+        if (profileData.workingMode) document.getElementById('workingMode').textContent = profileData.workingMode;
+        if (profileData.preferredLocation) document.getElementById('preferredLocation').textContent = profileData.preferredLocation;
+
+        saveBtn.textContent = "Saved Successfully! ✓";
+        saveBtn.style.background = "#2e7d32"; 
+        setTimeout(() => {
+            saveBtn.textContent = originalText;
+            saveBtn.style.background = originalBg; 
+            editProfileForm.reset(); 
+        }, 1500);
     });
 }
