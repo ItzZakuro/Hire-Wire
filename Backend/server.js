@@ -1,9 +1,12 @@
 const express = require('express');
+const path = require('path');
+
 const app = express();
 
 app.use(express.json());
 
-const path = require('path');
+// frontend files
+app.use(express.static(path.join(__dirname, '..')));
 
 const jobsRoutes = require('./routes/jobs');
 app.use('/api/jobs', jobsRoutes);
@@ -11,25 +14,22 @@ app.use('/api/jobs', jobsRoutes);
 const candidatesRoutes = require('./routes/candidates');
 app.use('/api/candidates', candidatesRoutes);
 
-// frontend files
-app.use(express.static(path.join(__dirname, '../Code Files')));
-
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../Code Files', 'main.html'));
+    res.sendFile(path.join(__dirname, '..', 'main.html'));
 });
 
 app.get('/candidate', (req, res) => {
-    res.sendFile(path.join(__dirname, '../Code Files', 'candidate.html'));
+    res.sendFile(path.join(__dirname, '..', 'candidate.html'));
 });
 
 app.get('/employer', (req, res) => {
-    res.sendFile(path.join(__dirname, '../Code Files', 'employer.html'));
+    res.sendFile(path.join(__dirname, '..', 'employer.html'));
 });
 
 app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, '../Code Files', 'profile.html'));
+    res.sendFile(path.join(__dirname, '..', 'profile.html'));
 });
 
 app.listen(3000, () => {
-    console.log('Server running on port 3000');
+    console.log('Server running on http://localhost:3000');
 });
