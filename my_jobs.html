@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="main.css">
+        <title>HireWire - My Posted Jobs</title>
+        <style>
+            .jobs-container { padding: 40px 0; background: #f4f4f4; min-height: 80vh; }
+            .job-card { background: white; padding: 25px; margin-bottom: 20px; border-top: 4px solid #a89676; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+            .no-jobs { text-align: center; color: #888; font-size: 1.2em; margin-top: 50px; }
+        </style>
+        <script>
+            if (!localStorage.getItem('currentUserId')) {
+                alert('Please log in first!');
+                window.location.href = 'login.html'; 
+            }
+        </script>
+    </head>
+    <body>
+        <header>
+            <div class="container nav">
+                <div class="logo">
+                    <svg viewBox="0 0 200 200" width="110" height="110" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="100,20 180,100 100,180 20,100" fill="none" stroke="#a89676" stroke-width="6"></polygon>
+                        <path d="M 65 80 L 65 120 M 95 80 L 95 120 M 65 100 L 95 100" stroke="#fff" stroke-width="8" stroke-linecap="square" fill="none"></path>
+                        <path d="M 102 80 L 112 120 L 122 100 L 132 120 L 142 80" stroke="#a89676" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter" fill="none"></path>
+                    </svg>
+                </div>
+                <button class="menuBtn" id="menuBtn">Menu</button>
+                <nav class="navLinks" id="navLinks">
+                    <a href="main.html">Home</a>
+                    <a href="job_listings_creation.html">Post Job</a>
+                    <a href="my_jobs.html">My Posted Jobs</a>
+                    <a href="job_listings.html">Job Listings</a>
+                    <a href="candidate_listings.html">Candidate Listings</a>
+                    <a href="candidate.html">Candidate Matching</a>
+                    <a href="employer.html">Employer matching</a>
+                    <a href="profile.html">Profile</a>
+                    <a href="login.html">Log In</a>
+                </nav>
+            </div>
+        </header>
+
+        <section class="jobs-container">
+            <div class="container">
+                <h1 class="accent-title" style="margin-bottom: 10px; text-align: center; color: #333;">MY POSTED JOBS</h1>
+                <p style="margin-bottom: 30px; text-align: center; color: #666;">Below are the jobs managed by your account.</p>
+                <div id="myJobsList" style="max-width: 800px; margin: auto;"></div>
+            </div>
+        </section>
+
+        <script>
+            const menuBtn = document.getElementById('menuBtn');
+            const navLinks = document.getElementById('navLinks');
+            if (menuBtn && navLinks) {
+                menuBtn.addEventListener('click', function () {
+                    navLinks.classList.toggle('show');
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const myJobsList = document.getElementById('myJobsList');
+                const myId = localStorage.getItem('currentUserId'); 
+
+                fetch('/api/jobs') 
+                    .then(res => res.json())
+                    .then(allJobs => {
+                        const myFilteredJobs = allJobs.filter(job => String(job.ownerId) === String(myId));
+
+                        if (myFilteredJobs.length === 0) {
+                            myJobsList.innerHTML = `<p class="no-jobs">🔍 You haven't posted any jobs under this account yet.</p>`;
+                            return;
+                        }
+
+                        myJobsList.innerHTML = myFilteredJobs.map(job => `
+                            <div class="job-card">
+                                <h3 style="font-family: Impact, sans-serif; text-transform: uppercase;">${job.jobTitle}</h3>
+                                <p><strong>Company:</strong> ${job.companyName}</p>
+                                <p><strong>Location:</strong> ${job.jobLocation || 'N/A'}</p>
+                                <p><strong>Salary:</strong> ${job.salary || 'N/A'}</p>
+                                <p style="color: #a89676; font-size: 0.85em; margin-top: 10px;">Managed by Owner ID: ${job.ownerId} (You)</p>
+                            </div>
+                        `).join('');
+                    })
+                    .catch(err => {
+                        myJobsList.innerHTML = `<p class="no-jobs" style="color: red;">Error fetching your jobs.</p>`;
+                    });
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const loginLink = document.querySelector('nav.navLinks a[href="login.html"]');
+                if (loginLink && localStorage.getItem('currentUserName')) {
+                    loginLink.textContent = 'Log Out';
+                    loginLink.href = 'javascript:void(0)'; 
+                    loginLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        localStorage.removeItem('currentUserId');
+                        localStorage.removeItem('currentUserName');
+                        localStorage.removeItem('currentUserEmail');
+                        localStorage.removeItem('isMember');
+                        alert('You have been logged out!');
+                        window.location.href = 'main.html'; 
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>

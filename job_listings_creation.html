@@ -43,6 +43,12 @@
             width: 100%;
         }
     </style>
+    <script>
+        if (!localStorage.getItem('currentUserName')) {
+            alert('Please log in first!');
+            window.location.href = 'login.html'; 
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -58,7 +64,7 @@
             <nav class="navLinks" id="navLinks">
                 <a href="main.html">Home</a>
                 <a href="job_listings_creation.html">Post Job</a>
-                <a href="job_listings.html">Job Listings</a>
+                <a href="my_jobs.html">My Posted Jobs</a> <a href="job_listings.html">Job Listings</a>
                 <a href="candidate_listings.html">Candidate Listings</a>
                 <a href="candidate.html">Candidate Matching</a>
                 <a href="employer.html">Employer matching</a>
@@ -109,6 +115,7 @@
             </form>
         </div>
     </section>
+
     <script>
         const menuBtn = document.getElementById('menuBtn');
         const navLinks = document.getElementById('navLinks');
@@ -118,11 +125,70 @@
             });
         }
         
-        const jobCreationForm = document.getElementById('job-creation-form');
-        jobCreationForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            alert('Job listing created successfully!');
-            jobCreationForm.reset();
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('job-creation-form'); 
+        
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault(); 
+                    
+                    // 🌟 核心修改点：在这里打包数据时，带上主人的编号！
+                    const jobData = {
+                        ownerId: localStorage.getItem('currentUserId') || '', // 👈 就是加了这一行！
+                        jobTitle: document.getElementById('jobTitle') ? document.getElementById('jobTitle').value : '',
+                        companyName: document.getElementById('companyName') ? document.getElementById('companyName').value : '',
+                        jobDescription: document.getElementById('jobDescription') ? document.getElementById('jobDescription').value : '',
+                        location: document.getElementById('location') ? document.getElementById('location').value : '',
+                        education: document.getElementById('educationLevel') ? document.getElementById('educationLevel').value : '',
+                        skills: document.getElementById('skills') ? document.getElementById('skills').value : '', 
+                        experience: document.getElementById('experienceLevel') ? document.getElementById('experienceLevel').value : '', 
+                        salary: document.getElementById('salary') ? document.getElementById('salary').value : '',
+                        workMode: document.getElementById('workMode') ? document.getElementById('workMode').value : ''
+                    };
+
+                    fetch('/api/jobs/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(jobData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Job posted successfully!');
+                            form.reset(); 
+                            window.location.href = 'job_listings.html';
+                        } else {
+                            alert('Post failed: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Please ensure the node server.js is running!');
+                    });
+                });
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginLink = document.querySelector('nav.navLinks a[href="login.html"]');
+            if (loginLink && localStorage.getItem('currentUserName')) {
+                loginLink.textContent = 'Log Out';
+                loginLink.href = 'javascript:void(0)'; 
+                loginLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // 🌟 登出时，把所有印章全部销毁清空
+                    localStorage.removeItem('currentUserId'); // 👈 顺手加上这一行，绝缘更安全！
+                    localStorage.removeItem('currentUserName');
+                    localStorage.removeItem('currentUserEmail');
+                    localStorage.removeItem('isMember');
+                    
+                    alert('You have been logged out!');
+                    window.location.href = 'main.html'; 
+                });
+            }
         });
     </script>
 </body>

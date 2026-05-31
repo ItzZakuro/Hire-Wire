@@ -23,17 +23,6 @@
                 width: 100%;
                 max-width: 500px;
             }
-            .file-upload-group {
-                margin-bottom: 25px;
-                text-align: left;
-            }
-            .file-upload-group label {
-                display: block;
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 8px;
-                font-size: 0.9em;
-            }
         </style>
     </head>
     <body>
@@ -50,7 +39,7 @@
                 <nav class="navLinks" id="navLinks">
                     <a href="main.html">Home</a>
                     <a href="job_listings_creation.html">Post Job</a>
-                    <a href="job_listings.html">Job Listings</a>
+                    <a href="my_jobs.html">My Posted Jobs</a> <a href="job_listings.html">Job Listings</a>
                     <a href="candidate_listings.html">Candidate Listings</a>
                     <a href="candidate.html">Candidate Matching</a>
                     <a href="employer.html">Employer matching</a>
@@ -62,23 +51,13 @@
 
         <section class="registerSection">
             <div class="registerCard">
-                <h2 class="accent-title" style="font-size: 2rem; margin-bottom: 30px;">Create Profile</h2>
+                <h2 class="accent-title" style="font-size: 2rem; margin-bottom: 30px; text-align: center;">Create Profile</h2>
+                
                 <form id="registerForm">
-                    <input type="text" id="regName" placeholder="Full Name *" required style="background: #f9f9f9;" />
-                    <input type="email" id="regEmail" placeholder="Email Address *" required style="background: #f9f9f9;" />
-                    <input type="password" id="regPassword" placeholder="Password *" required minlength="6" style="background: #f9f9f9;" />
-                    
-                    <div class="file-upload-group">
-                        <label>Upload Profile Picture (Optional)</label>
-                        <input type="file" id="regProfilePic" accept="image/*" style="background: #f9f9f9;" />
-                    </div>
-
-                    <div class="file-upload-group">
-                        <label>Upload Resume (PDF, DOCX) *</label>
-                        <input type="file" id="regResume" accept=".pdf,.doc,.docx" required style="background: #f9f9f9;" />
-                    </div>
-
-                    <button class="btn" type="submit" style="width: 100%; background: #504e4a;">Register</button>
+                    <input type="text" id="regName" placeholder="Full Name *" required style="background: #f9f9f9; width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <input type="email" id="regEmail" placeholder="Email Address *" required style="background: #f9f9f9; width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <input type="password" id="regPassword" placeholder="Password *" required minlength="6" style="background: #f9f9f9; width: 100%; padding: 12px; margin-bottom: 25px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <button class="btn" type="submit" style="width: 100%; background: #504e4a; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">REGISTER</button>
                     <div class="message" id="regMessage" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
                 </form>
 
@@ -87,5 +66,41 @@
                 </div>
             </div>
         </section>
+
+        <script>
+            const registerForm = document.getElementById('registerForm');
+            const regMessage = document.getElementById('regMessage');
+
+            registerForm.addEventListener('submit', function(event) {
+                event.preventDefault(); 
+                
+                const name = document.getElementById('regName').value;
+                const email = document.getElementById('regEmail').value;
+                const password = document.getElementById('regPassword').value;
+
+                fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        regMessage.style.color = "green";
+                        regMessage.textContent = "Registration successful! Redirecting to login...";                
+                        setTimeout(() => {
+                            window.location.href = "login.html"; 
+                        }, 1500);
+                    } else {
+                        regMessage.style.color = "red";
+                        regMessage.textContent = data.message;
+                    }
+                })
+                .catch(error => {
+                    regMessage.style.color = "red";
+                    regMessage.textContent = "Server error. Please try again later.";
+                });
+            });
+        </script>
     </body>
 </html>

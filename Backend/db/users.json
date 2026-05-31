@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "id": "1001",
+      "email": "alexcarter@gmail.com",
+      "password": "123",
+      "name": "Alex Carter",
+      "isMember": false
+    },
+    {
+      "id": "1002",
+      "email": "emmasmith@gmail.com",
+      "password": "123",
+      "name": "Emma Smith",
+      "isMember": true
+    }
+  ]
+}

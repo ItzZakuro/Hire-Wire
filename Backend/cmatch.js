@@ -1,3 +1,4 @@
+
 const menuBtn = document.getElementById('menuBtn');
 const navLinks = document.getElementById('navLinks');
 
@@ -7,66 +8,81 @@ if (menuBtn && navLinks) {
     });
 }
 
-// shuffle function to randomise top n rows of data
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-
-// Backend/cmatch.js
-
 let jobs = [];
 let currentIndex = 0;
 let likedCount = 0;
 let passedCount = 0;
+function calculateMatchScore(job, myProfile) {
+    let score = 0;
+    const jobLoc = (job.jobLocation || '').toLowerCase();
+    const myLoc = (myProfile.location || '').toLowerCase();
+    if (myLoc && jobLoc.includes(myLoc)) {
+        score += 30;
+    }
+    const jobMode = (job.workMode || '').toLowerCase();
+    const myMode = (myProfile.workMode || '').toLowerCase();
+    if (myMode && jobMode.includes(myMode)) {
+        score += 20;
+    }
+    const jobSkillsStr = (job.requiredSkills || '').toLowerCase();
+    const mySkillsArr = (myProfile.skills || '').toLowerCase().split(',').map(s => s.trim()).filter(s => s);
+    
+    mySkillsArr.forEach(skill => {
+        if (jobSkillsStr.includes(skill)) {
+            score += 10;
+        }
+    });
 
-// Load jobs from the API on page load
+    return score;
+}
+
 async function loadJobs() {
     try {
-        const response = await fetch('http://localhost:3000/api/jobListings');
-        jobs = await response.json();
+        const seekerRes = await fetch('../Database/jobSeekers.csv?t=' + new Date().getTime());
+        const seekerCsv = await seekerRes.text();
+        const seekerLines = seekerCsv.trim().split('\n').filter(line => line.length > 0);
+        const lastSeeker = seekerLines[seekerLines.length - 1].split(',');
+
+        const myProfile = {
+            location: lastSeeker[13] ? lastSeeker[13].replace(/"/g, '') : '',
+            workMode: lastSeeker[14] ? lastSeeker[14].replace(/"/g, '') : '',
+            skills: lastSeeker[15] ? lastSeeker[15].replace(/"/g, '') : ''
+        };
+
+        const response = await fetch('/api/jobs');
+        let allJobs = await response.json();
+
+        allJobs.forEach(job => {
+            job.matchScore = calculateMatchScore(job, myProfile);
+        });
+
+        allJobs.sort((a, b) => b.matchScore - a.matchScore);
         const isMember = localStorage.getItem('isMember') === 'true';
-        jobs = isMember ? shuffle(jobs) : shuffle(jobs).slice(0, 10); // if not a member, show only top 10 random jobs
+        jobs = isMember ? allJobs : allJobs.slice(0, 10); 
+
         if (jobs.length > 0) {
             showCard(jobs[currentIndex]);
         } else {
             document.getElementById('jobTitle').textContent = 'No jobs available';
         }
-    } catch (err) {
-        console.error('Failed to load jobs:', err);
+    } catch (error) {
+        console.error('Error loading jobs:', error);
+        document.getElementById('jobTitle').textContent = 'Error loading jobs. Please ensure server is running.';
     }
 }
 
-// Populate the swipe/match card with a job object
 function showCard(job) {
-    document.getElementById('jobTitle').textContent       = job.jobTitle;
-    document.getElementById('companyName').textContent    = job.companyName;
-    //document.getElementById('companyAssets').textContent  = job.companyAssets;
-    //document.getElementById('noOfEmployees').textContent  = job.noOfEmployees;
-    //document.getElementById('companyCeo').textContent     = job.companyCeo;
-    //document.getElementById('companySector').textContent  = job.companySector;
-    document.getElementById('jobLocation').textContent    = job.jobLocation;
-    document.getElementById('jobType').textContent        = job.workMode;
-    //document.getElementById('educationLevel').textContent = job.educationLevel;
-    //document.getElementById('experience').textContent     = job.experience;
-
-    // Add $ and , to SALARY
-    const formattedSalary = '$' + Number(job.salary).toLocaleString();
+    document.getElementById('jobTitle').innerHTML = `${job.jobTitle} <span style="color:#a89676; font-size:0.7em;">(Match: ${job.matchScore || 0} pts)</span>`;
+    document.getElementById('companyName').textContent = job.companyName || 'Unknown';
+    document.getElementById('jobLocation').textContent = job.jobLocation || 'Unknown';
+    document.getElementById('jobType').textContent = job.workMode || 'Unspecified';
+    
+    const formattedSalary = job.salary ? String(job.salary) : 'Unspecified';
     document.getElementById('salary').textContent = formattedSalary;
 
-    // Only show first 4 SKILLS
-    const allSkills = job.requiredSkills.split(',');
+    const allSkills = (job.requiredSkills || '').split(',');
     const topSkills = allSkills.slice(0, 4).join(', ');
     document.getElementById('jobSkills').textContent = topSkills;
-
-    // Show only first 2 sentences of DESCRIPTION
-    const allSentences = job.jobDescription.split('.');
-    const shortDesc = allSentences.slice(0, 2).join('.') + '.';
-    document.getElementById('jobDescription').textContent = shortDesc;
 }
 
 function nextCard() {
@@ -74,11 +90,15 @@ function nextCard() {
     if (currentIndex < jobs.length) {
         showCard(jobs[currentIndex]);
     } else {
-        document.getElementById('swipeCard').innerHTML = '<h2>No more jobs!</h2>';
+        const isMember = localStorage.getItem('isMember') === 'true';
+        if (isMember) {
+            document.getElementById('swipeCard').innerHTML = '<h2 style="margin-top:50px;">You have viewed all jobs!</h2>';
+        } else {
+            document.getElementById('swipeCard').innerHTML = '<h2 style="margin-top:50px; color:#a89676;">Daily Limit Reached</h2><p style="margin-top:20px;">You have seen your Top 10 matches.<br>Upgrade to <b>Membership</b> to view unlimited jobs!</p>';
+        }
     }
 }
 
-// Button handlers
 document.getElementById('likeBtn').addEventListener('click', () => {
     document.getElementById('statusText').textContent = `You liked: ${jobs[currentIndex].jobTitle}`;
     likedCount++;
@@ -93,7 +113,4 @@ document.getElementById('passBtn').addEventListener('click', () => {
     nextCard();
 });
 
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadJobs();
-});
+loadJobs();

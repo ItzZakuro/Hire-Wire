@@ -63,7 +63,7 @@
                 <nav class="navLinks" id="navLinks">
                     <a href="main.html">Home</a>
                     <a href="job_listings_creation.html">Post Job</a>
-                    <a href="job_listings.html">Job Listings</a>
+                    <a href="my_jobs.html">My Posted Jobs</a> <a href="job_listings.html">Job Listings</a>
                     <a href="candidate_listings.html">Candidate Listings</a>
                     <a href="candidate.html">Candidate Matching</a>
                     <a href="employer.html">Employer matching</a>
@@ -110,15 +110,37 @@
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
 
-                if (password.length < 6) {
-                    loginMessage.textContent = "Invalid credentials. Please try again.";
-                } else {
-                    loginMessage.style.color = "green";
-                    loginMessage.textContent = "Login successful! Redirecting...";                
-                    setTimeout(() => {
-                        window.location.href = "main.html"; 
-                    }, 1500);
-                }
+                fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.setItem('currentUserId', data.user.id); 
+                        localStorage.setItem('currentUserName', data.user.name);
+                        localStorage.setItem('currentUserEmail', data.user.email);
+                        localStorage.setItem('isMember', data.user.isMember); 
+
+                        loginMessage.style.color = "green";
+                        loginMessage.textContent = "Login successful! Redirecting...";                
+                        setTimeout(() => {
+                            window.location.href = "main.html"; 
+                        }, 1000);
+                    } else {
+
+                        loginMessage.style.color = "red";
+                        loginMessage.textContent = data.message || "Invalid credentials. Please try again.";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loginMessage.style.color = "red";
+                    loginMessage.textContent = "Server error. Please ensure server is running.";
+                });
             });
         </script>
     </body>
