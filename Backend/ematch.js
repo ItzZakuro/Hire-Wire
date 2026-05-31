@@ -25,7 +25,9 @@ async function loadCandidates() {
     try {
         const response = await fetch('http://localhost:3000/api/jobSeekers');
         candidates = await response.json();
-        candidates = shuffle(candidates).slice(0, 10); // get top 10 random candidates
+        const isMember = localStorage.getItem('isMember') === 'true';
+        candidates = isMember ? shuffle(candidates) : shuffle(candidates).slice(0, 10); // if not a member, show only top 10 random candidates
+        
         if (candidates.length > 0) {
             showCard(candidates[currentIndex]);
         } else {

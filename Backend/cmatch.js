@@ -29,7 +29,8 @@ async function loadJobs() {
     try {
         const response = await fetch('http://localhost:3000/api/jobListings');
         jobs = await response.json();
-        jobs = shuffle(jobs).slice(0, 10); // get top 10 random jobs
+        const isMember = localStorage.getItem('isMember') === 'true';
+        jobs = isMember ? shuffle(jobs) : shuffle(jobs).slice(0, 10); // if not a member, show only top 10 random jobs
         if (jobs.length > 0) {
             showCard(jobs[currentIndex]);
         } else {

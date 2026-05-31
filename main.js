@@ -49,18 +49,43 @@ if (contactForm) {
     });
 }
 
-const currentUser = {
-    name: "Alex Carter",
-    membershipStatus: "Premium"
-};
+// const currentUser = {
+//     name: "Alex Carter",
+//     membershipStatus: "Premium"
+// };
 
-const phoneElement = document.getElementById('phone');
-if (phoneElement) { 
-    const membershipPara = document.createElement('p');
-    membershipPara.id = 'membership';
-    let badgeClass = currentUser.membershipStatus === "Premium" ? "badge-premium" : "badge-free";
-    membershipPara.innerHTML = `Membership: <span class="${badgeClass}">${currentUser.membershipStatus}</span>`;
-    phoneElement.insertAdjacentElement('afterend', membershipPara);
+// const phoneElement = document.getElementById('phone');
+// if (phoneElement) { 
+//     const membershipPara = document.createElement('p');
+//     membershipPara.id = 'membership';
+//     let badgeClass = currentUser.membershipStatus === "Premium" ? "badge-premium" : "badge-free";
+//     membershipPara.innerHTML = `Membership: <span class="${badgeClass}">${currentUser.membershipStatus}</span>`;
+//     phoneElement.insertAdjacentElement('afterend', membershipPara);
+// }
+
+const membershipText = document.getElementById('membership');
+const membershipBtn = document.getElementById('membershipBtn');
+
+function updateMembershipDisplay() {
+    const isMember = localStorage.getItem('isMember') === 'true';
+
+    if (membershipText) {
+        membershipText.innerHTML = `<strong>Membership:</strong> ${isMember ? 'Member' : 'Non-member'}`;
+    }
+
+    if (membershipBtn) {
+        membershipBtn.textContent = isMember ? 'Deactivate Membership' : 'Activate Membership';
+    }
+}
+
+if (membershipBtn) {
+    membershipBtn.addEventListener('click', function () {
+        const isMember = localStorage.getItem('isMember') === 'true';
+        localStorage.setItem('isMember', String(!isMember));
+        updateMembershipDisplay();
+    });
+
+    updateMembershipDisplay();
 }
 
 const uploadBtn = document.getElementById('uploadBtn');
