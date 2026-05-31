@@ -19,13 +19,16 @@ const upload = multer({ storage: storage });
 const {
     getAllCandidates,
     uploadResume,
-    getResume
+    getResume,
+    updateProfile,
+    getProfileById 
 } = require('../controllers/candidatesController');
 
 router.get('/', getAllCandidates);
+router.post('/updateProfile', updateProfile);
+router.get('/profile/:id', getProfileById);
 
 router.post('/resume/upload', upload.single('resume'), uploadResume);
-
 router.get('/resume/:filename', getResume);
 
 module.exports = router;

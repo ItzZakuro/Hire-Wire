@@ -14,6 +14,10 @@ app.use('/api/jobs', jobsRoutes);
 const candidatesRoutes = require('./routes/candidates');
 app.use('/api/candidates', candidatesRoutes);
 
+app.post('/api/auth/login', require('./controllers/authController').login);
+
+app.post('/api/auth/register', require('./controllers/authController').register);
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'main.html'));
 });
