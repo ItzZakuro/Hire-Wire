@@ -49,18 +49,43 @@ if (contactForm) {
     });
 }
 
-const currentUser = {
-    name: "Alex Carter",
-    membershipStatus: "Premium"
-};
+// const currentUser = {
+//     name: "Alex Carter",
+//     membershipStatus: "Premium"
+// };
 
-const phoneElement = document.getElementById('phone');
-if (phoneElement) { 
-    const membershipPara = document.createElement('p');
-    membershipPara.id = 'membership';
-    let badgeClass = currentUser.membershipStatus === "Premium" ? "badge-premium" : "badge-free";
-    membershipPara.innerHTML = `Membership: <span class="${badgeClass}">${currentUser.membershipStatus}</span>`;
-    phoneElement.insertAdjacentElement('afterend', membershipPara);
+// const phoneElement = document.getElementById('phone');
+// if (phoneElement) { 
+//     const membershipPara = document.createElement('p');
+//     membershipPara.id = 'membership';
+//     let badgeClass = currentUser.membershipStatus === "Premium" ? "badge-premium" : "badge-free";
+//     membershipPara.innerHTML = `Membership: <span class="${badgeClass}">${currentUser.membershipStatus}</span>`;
+//     phoneElement.insertAdjacentElement('afterend', membershipPara);
+// }
+
+const membershipText = document.getElementById('membership');
+const membershipBtn = document.getElementById('membershipBtn');
+
+function updateMembershipDisplay() {
+    const isMember = localStorage.getItem('isMember') === 'true';
+
+    if (membershipText) {
+        membershipText.innerHTML = `<strong>Membership:</strong> ${isMember ? 'Member' : 'Non-member'}`;
+    }
+
+    if (membershipBtn) {
+        membershipBtn.textContent = isMember ? 'Deactivate Membership' : 'Activate Membership';
+    }
+}
+
+if (membershipBtn) {
+    membershipBtn.addEventListener('click', function () {
+        const isMember = localStorage.getItem('isMember') === 'true';
+        localStorage.setItem('isMember', String(!isMember));
+        updateMembershipDisplay();
+    });
+
+    updateMembershipDisplay();
 }
 
 const uploadBtn = document.getElementById('uploadBtn');
@@ -119,48 +144,42 @@ const regMessage = document.getElementById('regMessage');
 const regResumeInput = document.getElementById('regResume'); 
 
 if (registerForm) {
-    registerForm.addEventListener('submit', async function(event) {
-        event.preventDefault(); 
-        if (regResumeInput.files.length === 0) { 
+    registerForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        if (regResumeInput.files.length === 0) {
             regMessage.style.color = "red";
             regMessage.textContent = "Error: Please upload your resume before registering.";
             return;
         }
 
-        regMessage.style.color = "blue";
-        regMessage.textContent = "Uploading your profile to the server...";
-        const formData = new FormData();
-        formData.append('name', document.getElementById('regName').value);
-        formData.append('email', document.getElementById('regEmail').value);
-        formData.append('password', document.getElementById('regPassword').value);
-        formData.append('role', 'candidate'); 
-        
-        const profilePic = document.getElementById('regProfilePic').files[0];
-        if (profilePic) {
-            formData.append('profilePic', profilePic);
-        }
-        formData.append('resume', regResumeInput.files[0]); 
-        
-        try {
-            const response = await fetch('http://localhost:3000/api/register', {
-                method: 'POST',
-                body: formData 
-            });
+        const profileData = {
+            name: document.getElementById('regName').value.trim(),
+            email: document.getElementById('regEmail').value.trim()
+        };
 
-            if (response.ok) {
-                regMessage.style.color = "green";
-                regMessage.textContent = "Profile uploaded successfully! Redirecting...";
-                setTimeout(() => { window.location.href = "login.html"; }, 1500);
-            } else {
-                regMessage.style.color = "red";
-                regMessage.textContent = "Server error: Failed to register.";
-            }
-        } catch (error) {
-            regMessage.style.color = "red";
-            regMessage.textContent = "Connection failed. Backend server is not ready yet.";
-            console.error("Fetch error:", error);
-        }
+        localStorage.setItem('currentUserProfile', JSON.stringify(profileData));
+
+        regMessage.style.color = "green";
+        regMessage.textContent = "Profile created successfully! Redirecting...";
+
+        setTimeout(function () {
+            window.location.href = "profile.html";
+        }, 1000);
     });
+}
+
+//Load saved profile data from localStorage and display it on the profile page
+const savedProfile = JSON.parse(localStorage.getItem('currentUserProfile'));
+
+if (savedProfile) {
+    if (savedProfile.name && document.getElementById('name')) {
+        document.getElementById('name').innerHTML = `<strong>Name:</strong> ${savedProfile.name}`;
+    }
+
+    if (savedProfile.email && document.getElementById('email')) {
+        document.getElementById('email').innerHTML = `<strong>Email:</strong> ${savedProfile.email}`;
+    }
 }
 
 const editProfileForm = document.getElementById('editProfileForm');
