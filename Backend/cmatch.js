@@ -49,7 +49,7 @@ async function loadJobs() {
             skills: lastSeeker[15] ? lastSeeker[15].replace(/"/g, '') : ''
         };
 
-        const response = await fetch('/api/jobs');
+        const response = await fetch('http://localhost:3000/api/jobListings');
         let allJobs = await response.json();
 
         allJobs.forEach(job => {

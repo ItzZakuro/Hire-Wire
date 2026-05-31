@@ -1,11 +1,11 @@
-var menuBtn = document.getElementById('menuBtn');
-var navLinks = document.getElementById('navLinks');
+// var menuBtn = document.getElementById('menuBtn');
+// var navLinks = document.getElementById('navLinks');
 
-if (menuBtn && navLinks) {
-    menuBtn.addEventListener('click', function () {
-        navLinks.classList.toggle('show');
-    });
-}
+// if (menuBtn && navLinks) {
+//     menuBtn.addEventListener('click', function () {
+//         navLinks.classList.toggle('show');
+//     });
+// }
 
 var candidatesData = [];
 var candidateGrid = document.getElementById('candidateGrid');
@@ -95,7 +95,7 @@ function convertRowsToCandidates(rows) {
 }
 
 function getCandidateName(candidate) {
-    return (candidate['First Name'] + ' ' + candidate['Last Name']).trim();
+    return ((candidate.firstName || '') + ' ' + (candidate.lastName || '')).trim();
 }
 
 function getUniqueValues(fieldName) {
@@ -176,6 +176,24 @@ function escapeHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
+// database cells contains lots of text for some columns
+// use this function to slim it down and make it look more formatted
+function getTwoSentences(text) {
+    console.log('getTwoSentences called, length:', text ? text.length : 0);
+    if (!text) return '';
+    if (text.length <= 150) return text;
+    var trimmed = text.substring(0, 150);
+    var lastSpace = trimmed.lastIndexOf(' ');
+    return (lastSpace > 0 ? trimmed.substring(0, lastSpace) : trimmed) + '...';
+}
+
+// gets top 4 skills cause cells contain too many (looks messy for formatting listing cards)
+function getTopSkills(skillsText) {
+    if (!skillsText) return '';
+    var allSkills = skillsText.split(',');
+    return allSkills.slice(0, 10).map(function(s) { return s.trim(); }).join(', ');
+}
+
 function renderCandidates(candidatesToRender) {
     candidateGrid.innerHTML = '';
     resultsCount.textContent = candidatesToRender.length + ' candidate listing(s) found';
@@ -192,15 +210,15 @@ function renderCandidates(candidatesToRender) {
 
         card.innerHTML = '' +
             '<h3>' + escapeHtml(getCandidateName(candidate)) + '</h3>' +
-            '<div class="skills">' + escapeHtml(candidate.skills) + '</div>' +
-            '<div class="experience">' + escapeHtml(candidate.Experience) + ' year(s) experience</div>' +
+            '<div class="company">' + escapeHtml(candidate.Study_Category || '') + '</div>' +
             '<div class="tags">' +
-                '<span class="tag">' + escapeHtml(candidate.preferredLocation) + '</span>' +
-                '<span class="tag">' + escapeHtml(candidate.preferredWorkMode) + '</span>' +
-                '<span class="tag">' + escapeHtml(candidate.Education) + '</span>' +
-                '<span class="tag">' + escapeHtml(candidate.Study_Category) + '</span>' +
+                '<span class="tag">' + escapeHtml(candidate.preferredLocation || '') + '</span>' +
+                '<span class="tag">' + escapeHtml(candidate.preferredWorkMode || '') + '</span>' +
+                '<span class="tag">' + escapeHtml(candidate.educationLevel || '') + '</span>' +
+                // '<span class="tag">' + escapeHtml(candidate.yearsExperience || '') + ' yrs exp</span>' +
+                '<span class="tag">' + (candidate.yearsExperience ? escapeHtml(String(candidate.yearsExperience)) + ' yrs exp' : 'Exp N/A') + '</span>' +
             '</div>' +
-            '<p class="location">' + escapeHtml(candidate.workExperience) + '</p>' +
+            '<p class="description">' + escapeHtml(getTopSkills(candidate.skills)) + '</p>' +
             '<a href="#" class="select-btn">Select Candidate</a>';
 
         candidateGrid.appendChild(card);
@@ -269,15 +287,30 @@ for (var i = 0; i < allFilters.length; i += 1) {
     allFilters[i].addEventListener('change', filterCandidates);
 }
 
-fetch('Database/jobSeekers.csv')
+// fetch('Database/jobSeekers.csv')
+//     .then(function (response) {
+//         return response.text();
+//     })
+//     .then(function (csvText) {
+//         candidatesData = convertRowsToCandidates(parseCsv(csvText));
+//         setupFilterOptions();
+//         renderCandidates(candidatesData);
+//     })
+//     .catch(function () {
+//         candidateGrid.innerHTML = '<p>Unable to load candidate listings. Please run this website through a local server so the CSV file can be loaded.</p>';
+//     });
+
+// testing linkage toi database instead of csv
+fetch('http://localhost:3000/api/jobSeekers')
     .then(function (response) {
-        return response.text();
+        return response.json();
     })
-    .then(function (csvText) {
-        candidatesData = convertRowsToCandidates(parseCsv(csvText));
+    .then(function (data) {
+        console.log('Candidates loaded:', data.length, data[0]);
+        candidatesData = data;
         setupFilterOptions();
         renderCandidates(candidatesData);
     })
     .catch(function () {
-        candidateGrid.innerHTML = '<p>Unable to load candidate listings. Please run this website through a local server so the CSV file can be loaded.</p>';
+        candidateGrid.innerHTML = '<p>Unable to load candidates. Please ensure the server is running.</p>'; 
     });
