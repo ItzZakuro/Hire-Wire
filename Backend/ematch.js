@@ -7,15 +7,6 @@ if (menuBtn && navLinks) {
     });
 }
 
-// shuffle function to randomise top n rows of data
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
 let candidates = [];
 let currentIndex = 0;
 let likedCount = 0;
@@ -23,37 +14,73 @@ let passedCount = 0;
 
 async function loadCandidates() {
     try {
-        const response = await fetch('http://localhost:3000/api/jobSeekers');
-        candidates = await response.json();
+        const currentUserId = localStorage.getItem('currentUserId');
         const isMember = localStorage.getItem('isMember') === 'true';
-        candidates = isMember ? shuffle(candidates) : shuffle(candidates).slice(0, 10); // if not a member, show only top 10 random candidates
+        const jobsResponse = await fetch('/api/jobs'); 
+        const allJobs = await jobsResponse.json();
+        const myJobs = allJobs.filter(job => String(job.ownerId) === String(currentUserId));
         
+        const candidatesResponse = await fetch('/api/candidates'); 
+        let allCandidates = await candidatesResponse.json();
+
+        if (!Array.isArray(allCandidates)) {
+            allCandidates = allCandidates.data || allCandidates.candidates || [];
+        }
+        if (myJobs.length > 0 && allCandidates.length > 0) {
+            const latestJob = myJobs[myJobs.length - 1]; 
+            const requiredSkills = (latestJob.skills || '').toLowerCase();
+            const reqSkillArray = requiredSkills.split(',').map(s => s.trim()).filter(s => s !== '');
+
+            allCandidates.forEach(candidate => {
+                let matchScore = 0;
+                const candidateSkills = (candidate.skills || '').toLowerCase();
+                reqSkillArray.forEach(skill => {
+                    if (candidateSkills.includes(skill)) {
+                        matchScore += 10; 
+                    }
+                });
+                candidate.matchScore = matchScore; 
+            });
+            allCandidates.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+        } else {
+            allCandidates = allCandidates.sort(() => Math.random() - 0.5);
+        }
+        candidates = isMember ? allCandidates : allCandidates.slice(0, 10);
         if (candidates.length > 0) {
             showCard(candidates[currentIndex]);
         } else {
-            document.getElementById('candidateName').textContent = 'No candidates available';
+            showEmptyState();
         }
     } catch (err) {
         console.error('Failed to load candidates:', err);
+        const nameNode = document.getElementById('candidateName');
+        if (nameNode) nameNode.textContent = 'Error loading candidates. Please check backend.';
     }
 }
 
 function showCard(candidate) {
-    // Combine first and last name
-    const fullName = `${candidate.firstName} ${candidate.lastName}`;
-    document.getElementById('candidateName').textContent    = fullName;
-
-    document.getElementById('candidateRole').textContent        = candidate.preferredWorkMode;
-    document.getElementById('candidateEducation').textContent   = candidate.educationLevel;
-    document.getElementById('candidateExperience').textContent  = candidate.yearsExperience;
-    // document.getElementById('candidateSkills').textContent      = candidate.skills;
+    if (!candidate) return;
+    const fullName = `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim();
     
-    // Only show first 4 skills
-    const allSkills = candidate.skills.split(',');
+    document.getElementById('candidateName').textContent = fullName || 'Unknown Candidate';
+    document.getElementById('candidateRole').textContent = candidate.preferredWorkMode || 'N/A';
+    document.getElementById('candidateEducation').textContent = candidate.educationLevel || 'N/A';
+    document.getElementById('candidateExperience').textContent = candidate.yearsExperience || 'N/A';
+    
+    const rawSkills = candidate.skills || '';
+    const allSkills = rawSkills.split(',').filter(s => s.trim() !== '');
     const topSkills = allSkills.slice(0, 4).join(', ');
-    document.getElementById('candidateSkills').textContent = topSkills;
+    document.getElementById('candidateSkills').textContent = topSkills || 'No skills listed';
+    document.getElementById('candidateDescription').textContent = candidate.workExperience || 'No experience detailed.';
+}
 
-    document.getElementById('candidateDescription').textContent = candidate.workExperience;
+function showEmptyState() {
+    document.getElementById('candidateName').textContent = 'No candidates available';
+    document.getElementById('candidateRole').textContent = '';
+    document.getElementById('candidateEducation').textContent = '';
+    document.getElementById('candidateExperience').textContent = '';
+    document.getElementById('candidateSkills').textContent = '';
+    document.getElementById('candidateDescription').textContent = '';
 }
 
 function nextCard() {
@@ -61,25 +88,46 @@ function nextCard() {
     if (currentIndex < candidates.length) {
         showCard(candidates[currentIndex]);
     } else {
-        document.getElementById('swipeCard').innerHTML = '<h2>No more candidates!</h2>';
+        const swipeCard = document.getElementById('swipeCard');
+        if (swipeCard) {
+            swipeCard.innerHTML = '<h2 style="text-align:center; padding: 40px 0; color: #504e4a;">No more candidates!</h2>';
+        }
     }
 }
 
-document.getElementById('likeBtn').addEventListener('click', () => {
-    const name = `${candidates[currentIndex].firstName} ${candidates[currentIndex].lastName}`;
-    document.getElementById('statusText').textContent = `You liked: ${name}`;
-    likedCount++;
-    document.getElementById('likedCount').textContent = likedCount;
-    nextCard();
-});
+const likeBtn = document.getElementById('likeBtn');
+if (likeBtn) {
+    likeBtn.addEventListener('click', () => {
+        if (currentIndex >= candidates.length) return;
+        const name = `${candidates[currentIndex].firstName || ''} ${candidates[currentIndex].lastName || ''}`.trim();
+        
+        const statusText = document.getElementById('statusText');
+        if (statusText) statusText.textContent = `You liked: ${name}`;
+        
+        likedCount++;
+        const likedCountNode = document.getElementById('likedCount');
+        if (likedCountNode) likedCountNode.textContent = likedCount;
+        
+        nextCard();
+    });
+}
 
-document.getElementById('passBtn').addEventListener('click', () => {
-    const name = `${candidates[currentIndex].firstName} ${candidates[currentIndex].lastName}`;
-    document.getElementById('statusText').textContent = `You passed: ${name}`;
-    passedCount++;
-    document.getElementById('passedCount').textContent = passedCount;
-    nextCard();
-});
+const passBtn = document.getElementById('passBtn');
+if (passBtn) {
+    passBtn.addEventListener('click', () => {
+        if (currentIndex >= candidates.length) return;
+        const name = `${candidates[currentIndex].firstName || ''} ${candidates[currentIndex].lastName || ''}`.trim();
+        
+        const statusText = document.getElementById('statusText');
+        if (statusText) statusText.textContent = `You passed: ${name}`;
+        
+        passedCount++;
+        const passedCountNode = document.getElementById('passedCount');
+        if (passedCountNode) passedCountNode.textContent = passedCount;
+        
+        nextCard();
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCandidates();
