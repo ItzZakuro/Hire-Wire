@@ -55,6 +55,7 @@ header {
 }
 .navLinks {
     display: flex;
+    text-align: center;
     gap: 30px;
 }
 .navLinks a {
