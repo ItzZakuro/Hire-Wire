@@ -204,6 +204,17 @@ function escapeHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
+// database cells contains lots of text for some columns
+// use this function to slim it down and make it look more formatted
+function getTwoSentences(text) {
+    console.log('getTwoSentences called, length:', text ? text.length : 0);
+    if (!text) return '';
+    if (text.length <= 150) return text;
+    var trimmed = text.substring(0, 150);
+    var lastSpace = trimmed.lastIndexOf(' ');
+    return (lastSpace > 0 ? trimmed.substring(0, lastSpace) : trimmed) + '...';
+}
+
 function renderJobs(jobsToRender) {
     jobGrid.innerHTML = '';
     resultsCount.textContent = jobsToRender.length + ' job listing(s) found';
@@ -228,7 +239,7 @@ function renderJobs(jobsToRender) {
                 '<span class="tag">$' + Number(job.salary).toLocaleString() + '</span>' +
                 '<span class="tag">' + escapeHtml(job.companySector) + '</span>' +
             '</div>' +
-            '<p class="description">' + escapeHtml(job.jobDescription) + '</p>' +
+            '<p class="description">' + escapeHtml(getTwoSentences(job.jobDescription)) + '</p>' + // only get first 2 sentences of description
             '<a href="#" class="apply-btn">Apply Now</a>';
 
         jobGrid.appendChild(card);
@@ -296,15 +307,31 @@ for (var i = 0; i < allFilters.length; i += 1) {
     allFilters[i].addEventListener('change', filterJobs);
 }
 
-fetch('Database/jobListings.csv')
+// fetch('Database/jobListings.csv')
+//     .then(function (response) {
+//         return response.text();
+//     })
+//     .then(function (csvText) {
+//         jobsData = convertRowsToJobs(parseCsv(csvText));
+//         setupFilterOptions();
+//         renderJobs(jobsData);
+//     })
+//     .catch(function () {
+//         jobGrid.innerHTML = '<p>Unable to load job listings. Please run this website through a local server so the CSV file can be loaded.</p>';
+//     });
+
+
+// testing linkage toi database instead of csv
+fetch('http://localhost:3000/api/jobListings')
     .then(function (response) {
-        return response.text();
+        return response.json();
     })
-    .then(function (csvText) {
-        jobsData = convertRowsToJobs(parseCsv(csvText));
+    .then(function (data) {
+        console.log('Jobs loaded:', data.length, data[0]);
+        jobsData = data;
         setupFilterOptions();
         renderJobs(jobsData);
     })
     .catch(function () {
-        jobGrid.innerHTML = '<p>Unable to load job listings. Please run this website through a local server so the CSV file can be loaded.</p>';
+        jobGrid.innerHTML = '<p>Unable to load job listings. Please ensure the server is running.</p>';
     });
