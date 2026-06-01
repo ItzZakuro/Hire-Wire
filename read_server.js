@@ -14,6 +14,9 @@
         http://localhost:3000/api/jobSeekers
 */
 
+// used to hide db credentials/login
+const dotenv = require('dotenv');
+dotenv.config();
 
 /* -- MAIN DATABASE CONNECTION STUFF -- */
 // import libraries
