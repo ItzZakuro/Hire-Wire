@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Fuse = require('fuse.js');
+const db = require('../db/db');
 
 function loadJobs() {
     const csvPath = path.join(__dirname, '../../Database/jobListings.csv');
@@ -21,8 +22,14 @@ function loadJobs() {
 }
 
 function getAllJobs(req, res) {
-    const jobs = loadJobs();
-    res.json(jobs);
+    db.query('SELECT * FROM jobListings', (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        res.json(results);
+    });
 }
 
 function searchJobs(req, res) {
