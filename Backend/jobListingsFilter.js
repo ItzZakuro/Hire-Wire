@@ -35,114 +35,42 @@ var allFilters = [
     sectorFilter
 ];
 
-function parseCsv(csvText) {
-    var rows = [];
-    var row = [];
-    var currentValue = '';
-    var insideQuotes = false;
-
-    for (var i = 0; i < csvText.length; i += 1) {
-        var character = csvText[i];
-        var nextCharacter = csvText[i + 1];
-
-        if (character === '"' && insideQuotes && nextCharacter === '"') {
-            currentValue += '"';
-            i += 1;
-        } else if (character === '"') {
-            insideQuotes = !insideQuotes;
-        } else if (character === ',' && !insideQuotes) {
-            row.push(currentValue);
-            currentValue = '';
-        } else if ((character === '\n' || character === '\r') && !insideQuotes) {
-            if (character === '\r' && nextCharacter === '\n') {
-                i += 1;
-            }
-            row.push(currentValue);
-            if (row.length > 1 || row[0] !== '') {
-                rows.push(row);
-            }
-            row = [];
-            currentValue = '';
-        } else {
-            currentValue += character;
-        }
-    }
-
-    if (currentValue !== '' || row.length > 0) {
-        row.push(currentValue);
-        rows.push(row);
-    }
-
-    return rows;
-}
-
-function convertRowsToJobs(rows) {
-    var headers = rows[0];
-    var jobs = [];
-
-    for (var i = 1; i < rows.length; i += 1) {
-        var row = rows[i];
-        var job = {};
-
-        for (var j = 0; j < headers.length; j += 1) {
-            job[headers[j]] = row[j] || '';
-        }
-
-        jobs.push(job);
-    }
-
-    return jobs;
-}
-
 function getUniqueValues(fieldName) {
     var values = [];
-
     for (var i = 0; i < jobsData.length; i += 1) {
         var value = jobsData[i][fieldName];
-
         if (value && values.indexOf(value) === -1) {
             values.push(value);
         }
     }
-
     values.sort();
     return values;
 }
 
 function getUniqueSkills() {
     var skills = [];
-
     for (var i = 0; i < jobsData.length; i += 1) {
-        var skillList = jobsData[i].requiredSkills.split(',');
-
+        var rawSkills = jobsData[i].requiredSkills || jobsData[i].skills || '';
+        if (!rawSkills) continue;
+        
+        var skillList = rawSkills.split(',');
         for (var j = 0; j < skillList.length; j += 1) {
             var skill = skillList[j].trim();
-
             if (skill !== '' && skills.indexOf(skill) === -1) {
                 skills.push(skill);
             }
         }
     }
-
     skills.sort();
     return skills;
 }
 
 function getAssetRange(assetText) {
+    if (!assetText) return '0-5000'; 
     var assetNumber = Number(String(assetText).replace(/[^0-9.]/g, ''));
-
-    if (assetNumber < 5000) {
-        return '0-5000';
-    }
-
-    if (assetNumber < 10000) {
-        return '5000-10000';
-    }
-
-    if (assetNumber < 15000) {
-        return '10000-15000';
-    }
-
+    if (assetNumber < 5000) return '0-5000';
+    if (assetNumber < 10000) return '5000-10000';
+    if (assetNumber < 15000) return '10000-15000';
     return '15000-999999999';
 }
 
@@ -156,9 +84,9 @@ function addOptions(selectElement, values) {
 }
 
 function setupFilterOptions() {
-    addOptions(locationFilter, getUniqueValues('jobLocation'));
+    addOptions(locationFilter, getUniqueValues('location') || getUniqueValues('jobLocation'));
     addOptions(skillsFilter, getUniqueSkills());
-    addOptions(educationFilter, getUniqueValues('educationLevel'));
+    addOptions(educationFilter, getUniqueValues('education') || getUniqueValues('educationLevel'));
     addOptions(workModeFilter, getUniqueValues('workMode'));
     addOptions(companyFilter, getUniqueValues('companyName'));
     addOptions(sectorFilter, getUniqueValues('companySector'));
@@ -183,20 +111,16 @@ function valueMatchesDropdown(jobValue, selectedValue) {
 }
 
 function valueMatchesRange(value, selectedRange) {
-    if (selectedRange === 'all') {
-        return true;
-    }
-
+    if (selectedRange === 'all') return true;
     var parts = selectedRange.split('-');
     var minimum = Number(parts[0]);
     var maximum = Number(parts[1]);
-    var numberValue = Number(String(value).replace(/[^0-9.]/g, ''));
-
+    var numberValue = Number(String(value || '0').replace(/[^0-9.]/g, ''));
     return numberValue >= minimum && numberValue < maximum;
 }
 
 function escapeHtml(value) {
-    return String(value)
+    return String(value || '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -217,18 +141,27 @@ function renderJobs(jobsToRender) {
         var job = jobsToRender[i];
         var card = document.createElement('div');
         card.className = 'job-card';
+        
+        var title = job.jobTitle || 'Untitled Job';
+        var company = job.companyName || 'Unknown Company';
+        var loc = job.location || job.jobLocation || 'N/A';
+        var mode = job.workMode || 'N/A';
+        var edu = job.education || job.educationLevel || 'N/A';
+        var sal = job.salary ? job.salary.replace(/[^0-9.]/g, '') : '0';
+        var sector = job.companySector || '';
+        var desc = job.jobDescription || '';
 
         card.innerHTML = '' +
-            '<h3>' + escapeHtml(job.jobTitle) + '</h3>' +
-            '<div class="company">' + escapeHtml(job.companyName) + '</div>' +
+            '<h3>' + escapeHtml(title) + '</h3>' +
+            '<div class="company">' + escapeHtml(company) + '</div>' +
             '<div class="tags">' +
-                '<span class="tag">' + escapeHtml(job.jobLocation) + '</span>' +
-                '<span class="tag">' + escapeHtml(job.workMode) + '</span>' +
-                '<span class="tag">' + escapeHtml(job.educationLevel) + '</span>' +
-                '<span class="tag">$' + Number(job.salary).toLocaleString() + '</span>' +
-                '<span class="tag">' + escapeHtml(job.companySector) + '</span>' +
+                '<span class="tag">' + escapeHtml(loc) + '</span>' +
+                '<span class="tag">' + escapeHtml(mode) + '</span>' +
+                '<span class="tag">' + escapeHtml(edu) + '</span>' +
+                '<span class="tag">$' + Number(sal).toLocaleString() + '</span>' +
+                (sector ? '<span class="tag">' + escapeHtml(sector) + '</span>' : '') +
             '</div>' +
-            '<p class="description">' + escapeHtml(job.jobDescription) + '</p>' +
+            '<p class="description">' + escapeHtml(desc) + '</p>' +
             '<a href="#" class="apply-btn">Apply Now</a>';
 
         jobGrid.appendChild(card);
@@ -247,29 +180,27 @@ function filterJobs() {
     var selectedSector = sectorFilter.value;
 
     var filteredJobs = jobsData.filter(function (job) {
-        var matchesSearch = job.jobTitle.toLowerCase().indexOf(searchTerm) !== -1 ||
-                            job.companyName.toLowerCase().indexOf(searchTerm) !== -1 ||
-                            job.requiredSkills.toLowerCase().indexOf(searchTerm) !== -1 ||
-                            job.jobDescription.toLowerCase().indexOf(searchTerm) !== -1;
+        var title = (job.jobTitle || '').toLowerCase();
+        var company = (job.companyName || '').toLowerCase();
+        var reqSkills = (job.requiredSkills || job.skills || '').toLowerCase();
+        var desc = (job.jobDescription || '').toLowerCase();
+        
+        var matchesSearch = title.indexOf(searchTerm) !== -1 ||
+                            company.indexOf(searchTerm) !== -1 ||
+                            reqSkills.indexOf(searchTerm) !== -1 ||
+                            desc.indexOf(searchTerm) !== -1;
 
-        var matchesLocation = valueMatchesDropdown(job.jobLocation, selectedLocation);
-        var matchesSkill = selectedSkill === 'all' || job.requiredSkills.indexOf(selectedSkill) !== -1;
-        var matchesEducation = valueMatchesDropdown(job.educationLevel, selectedEducation);
+        var matchesLocation = valueMatchesDropdown(job.location || job.jobLocation, selectedLocation);
+        var matchesSkill = selectedSkill === 'all' || reqSkills.indexOf(selectedSkill.toLowerCase()) !== -1;
+        var matchesEducation = valueMatchesDropdown(job.education || job.educationLevel, selectedEducation);
         var matchesSalary = valueMatchesRange(job.salary, selectedSalary);
         var matchesWorkMode = valueMatchesDropdown(job.workMode, selectedWorkMode);
         var matchesCompany = valueMatchesDropdown(job.companyName, selectedCompany);
         var matchesAssets = selectedAssets === 'all' || getAssetRange(job.companyAssets) === selectedAssets;
         var matchesSector = valueMatchesDropdown(job.companySector, selectedSector);
 
-        return matchesSearch &&
-               matchesLocation &&
-               matchesSkill &&
-               matchesEducation &&
-               matchesSalary &&
-               matchesWorkMode &&
-               matchesCompany &&
-               matchesAssets &&
-               matchesSector;
+        return matchesSearch && matchesLocation && matchesSkill && matchesEducation &&
+               matchesSalary && matchesWorkMode && matchesCompany && matchesAssets && matchesSector;
     });
 
     renderJobs(filteredJobs);
@@ -277,11 +208,9 @@ function filterJobs() {
 
 function clearAllFilters() {
     searchInput.value = '';
-
     for (var i = 0; i < allFilters.length; i += 1) {
         allFilters[i].value = 'all';
     }
-
     filterJobs();
 }
 
@@ -296,15 +225,16 @@ for (var i = 0; i < allFilters.length; i += 1) {
     allFilters[i].addEventListener('change', filterJobs);
 }
 
-fetch('Database/jobListings.csv')
+fetch('/api/jobs')
     .then(function (response) {
-        return response.text();
+        return response.json();
     })
-    .then(function (csvText) {
-        jobsData = convertRowsToJobs(parseCsv(csvText));
+    .then(function (data) {
+        jobsData = data;
         setupFilterOptions();
         renderJobs(jobsData);
     })
-    .catch(function () {
-        jobGrid.innerHTML = '<p>Unable to load job listings. Please run this website through a local server so the CSV file can be loaded.</p>';
+    .catch(function (err) {
+        console.error("Fetch error:", err);
+        jobGrid.innerHTML = '<p>Unable to load job listings from server.</p>';
     });
