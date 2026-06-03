@@ -20,6 +20,27 @@
       "password": "123123",
       "name": "Nikita",
       "isMember": false
+    },
+    {
+      "id": "1004",
+      "email": "nik@test.com",
+      "password": "123123",
+      "name": "Nikita",
+      "isMember": false
+    },
+    {
+      "id": "6",
+      "email": "nik@mail.com",
+      "password": "123123",
+      "name": "Nikitos Pops",
+      "isMember": false
+    },
+    {
+      "id": "7",
+      "email": "vv@test.com",
+      "password": "123123",
+      "name": "Vovan",
+      "isMember": false
     }
   ]
 }

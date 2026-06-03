@@ -1,12 +1,3 @@
-// var menuBtn = document.getElementById('menuBtn');
-// var navLinks = document.getElementById('navLinks');
-
-// if (menuBtn && navLinks) {
-//     menuBtn.addEventListener('click', function () {
-//         navLinks.classList.toggle('show');
-//     });
-// }
-
 var candidatesData = [];
 var candidateGrid = document.getElementById('candidateGrid');
 var searchInput = document.getElementById('searchInput');
@@ -286,19 +277,6 @@ clearFilters.addEventListener('click', clearAllFilters);
 for (var i = 0; i < allFilters.length; i += 1) {
     allFilters[i].addEventListener('change', filterCandidates);
 }
-
-// fetch('Database/jobSeekers.csv')
-//     .then(function (response) {
-//         return response.text();
-//     })
-//     .then(function (csvText) {
-//         candidatesData = convertRowsToCandidates(parseCsv(csvText));
-//         setupFilterOptions();
-//         renderCandidates(candidatesData);
-//     })
-//     .catch(function () {
-//         candidateGrid.innerHTML = '<p>Unable to load candidate listings. Please run this website through a local server so the CSV file can be loaded.</p>';
-//     });
 
 // testing linkage toi database instead of csv
 fetch('http://localhost:3000/api/jobSeekers')

@@ -152,14 +152,21 @@ function filterCandidates() {
 searchInput.addEventListener('input', filterCandidates);
 categoryFilter.addEventListener('change', filterCandidates);
 
-fetch('Database/jobSeekers.csv')
-    .then(function (response) {
-        return response.text();
-    })
-    .then(function (csvText) {
-        candidatesData = convertRowsToCandidates(parseCsv(csvText));
+fetch('/api/candidates')
+    .then(response => response.json())
+    .then(data => {
+
+        candidatesData = data.map(candidate => ({
+            name: `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim(),
+            skills: candidate.skills || '',
+            experience: candidate.workExperience || '',
+            location: candidate.preferredLocation || '',
+            category: candidate.studyCategory || ''
+        }));
+
         renderCandidates(candidatesData);
     })
-    .catch(function () {
-        candidateGrid.innerHTML = '<p>Unable to load job seekers. Please run this website through a local server so the CSV file can be loaded.</p>';
+    .catch(error => {
+        console.error(error);
+        candidateGrid.innerHTML = '<p>Unable to load candidates.</p>';
     });

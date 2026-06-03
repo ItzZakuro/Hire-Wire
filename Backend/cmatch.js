@@ -38,15 +38,19 @@ function calculateMatchScore(job, myProfile) {
 
 async function loadJobs() {
     try {
-        const seekerRes = await fetch('../Database/jobSeekers.csv?t=' + new Date().getTime());
-        const seekerCsv = await seekerRes.text();
-        const seekerLines = seekerCsv.trim().split('\n').filter(line => line.length > 0);
-        const lastSeeker = seekerLines[seekerLines.length - 1].split(',');
+        const currentUserId = localStorage.getItem('currentUserId') || '1';
+        
+        const profileResponse = await fetch(`/api/candidates/profile/${currentUserId}`);
+        const profileData = await profileResponse.json();
 
-        const myProfile = {
-            location: lastSeeker[13] ? lastSeeker[13].replace(/"/g, '') : '',
-            workMode: lastSeeker[14] ? lastSeeker[14].replace(/"/g, '') : '',
-            skills: lastSeeker[15] ? lastSeeker[15].replace(/"/g, '') : ''
+        const myProfile = profileData.success ? {
+            location: profileData.profile.preferredLocation || '',
+            workMode: profileData.profile.workingMode || '',
+            skills: profileData.profile.skills || ''
+        } : {
+            location: '',
+            workMode: '',
+            skills: ''
         };
 
         const response = await fetch('http://localhost:3000/api/jobListings');

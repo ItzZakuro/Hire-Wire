@@ -307,20 +307,6 @@ for (var i = 0; i < allFilters.length; i += 1) {
     allFilters[i].addEventListener('change', filterJobs);
 }
 
-// fetch('Database/jobListings.csv')
-//     .then(function (response) {
-//         return response.text();
-//     })
-//     .then(function (csvText) {
-//         jobsData = convertRowsToJobs(parseCsv(csvText));
-//         setupFilterOptions();
-//         renderJobs(jobsData);
-//     })
-//     .catch(function () {
-//         jobGrid.innerHTML = '<p>Unable to load job listings. Please run this website through a local server so the CSV file can be loaded.</p>';
-//     });
-
-
 // testing linkage toi database instead of csv
 fetch('http://localhost:3000/api/jobListings')
     .then(function (response) {
