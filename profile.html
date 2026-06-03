@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="main.css">
-        <script src="main.js" defer></script>
+        <!-- <script src="main.js" defer></script> -->
         <title>HireWire - Profile</title>
         <style>
             .premium-card {
@@ -28,6 +28,46 @@
             }
         </script> -->
     </head>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const resumeInput = document.getElementById('resumeInput');
+        
+            if (!uploadBtn || !resumeInput) return;
+        
+            uploadBtn.addEventListener('click', async () => {
+        
+                if (resumeInput.files.length === 0) {
+                    alert('Please select a file first.');
+                    return;
+                }
+        
+                const formData = new FormData();
+                formData.append('resume', resumeInput.files[0]);
+        
+                try {
+                    const response = await fetch('/api/candidates/resume/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        alert('Resume uploaded successfully!');
+                    } else {
+                        alert(data.message || 'Upload failed.');
+                    }
+        
+                } catch (err) {
+                    console.error(err);
+                    alert('Upload failed.');
+                }
+            });
+        });
+        </script>
+
     <body>
         <header>
             <div class="container nav">
@@ -148,7 +188,6 @@
                             const fullName = `${p.firstName || ''} ${p.lastName || ''}`.trim() || 'Anonymous';
                             document.getElementById('name').innerHTML = `<strong>Name:</strong> ${fullName}`;
                             document.getElementById('email').innerHTML = `<strong>Email:</strong> ${p.email || 'Not specified'}`;
-                            document.getElementById('membership').innerHTML = `<strong>Membership:</strong> ${p.membership || 'Non-member'}`;
                             document.getElementById('phone').innerHTML = `<strong>Phone:</strong> ${p.phone || 'Not specified'}`;
                             document.getElementById('university').innerText = p.university || 'Click Edit Profile to add';
                             document.getElementById('major').innerText = p.major || 'Click Edit Profile to add';
@@ -170,20 +209,31 @@
                     })
                     .catch(err => console.error('Error fetching profile:', err));
 
-                const memberBtn = document.getElementById('membershipBtn');
-                if (memberBtn) {
-                    if (localStorage.getItem('isMember') === 'true') {
-                        memberBtn.textContent = '👑 Premium Member Active';
-                        memberBtn.disabled = true;
-                        memberBtn.style.backgroundColor = 'gold';
-                        document.getElementById('membership').innerHTML = `<strong>Membership:</strong> Premium Member`;
-                    } else {
-                        memberBtn.addEventListener('click', () => {
-                            alert('Congratulations! You have successfully upgraded to a premium member!');
-                            localStorage.setItem('isMember', 'true'); 
-                            window.location.reload(); 
-                        });
+                    const memberBtn = document.getElementById('membershipBtn');
+                const membershipText = document.getElementById('membership');
+
+                function updateMembershipDisplay() {
+                    const isMember = localStorage.getItem('isMember') === 'true';
+
+                    if (membershipText) {
+                        membershipText.innerHTML = `<strong>Membership:</strong> ${isMember ? 'Premium Member' : 'Non-member'}`;
                     }
+
+                    if (memberBtn) {
+                        memberBtn.textContent = isMember ? 'Deactivate Membership' : 'Activate Membership';
+                        memberBtn.disabled = false;
+                        memberBtn.style.backgroundColor = isMember ? 'gold' : '#a89676';
+                    }
+                }
+
+                if (memberBtn) {
+                    memberBtn.addEventListener('click', () => {
+                        const isMember = localStorage.getItem('isMember') === 'true';
+                        localStorage.setItem('isMember', String(!isMember));
+                        updateMembershipDisplay();
+                    });
+
+                    updateMembershipDisplay();
                 }
 
                 if (editForm) {

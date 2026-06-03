@@ -168,6 +168,28 @@
         }
     </style>
 </head>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginLink = document.querySelector('nav.navLinks a[href="login.html"]');
+    
+        if (loginLink && localStorage.getItem('currentUserName')) {
+            loginLink.textContent = 'Log Out';
+            loginLink.href = 'javascript:void(0)';
+    
+            loginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+    
+                localStorage.removeItem('currentUserId');
+                localStorage.removeItem('currentUserName');
+                localStorage.removeItem('currentUserEmail');
+                localStorage.removeItem('isMember');
+    
+                alert('You have been logged out!');
+                window.location.href = 'main.html';
+            });
+        }
+    });
+    </script>
 <body>
     <header>
         <div class="container nav">

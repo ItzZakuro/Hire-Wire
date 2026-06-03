@@ -87,11 +87,23 @@
 
                 <label>Company Name</label>
                 <input type="text" id="companyName" name="company-name" required>
+                
+                <label>Company Assets</label>
+                <input type="text" id="companyAssets" placeholder="e.g. Cloud Infrastructure">
+
+                <label>Number of Employees</label>
+                <input type="number" id="noOfEmployees" placeholder="e.g. 50">
+
+                <label>Company CEO</label>
+                <input type="text" id="companyCeo" placeholder="e.g. John Smith">
+
+                <label>Company Sector</label>
+                <input type="text" id="companySector" placeholder="e.g. Technology">
 
                 <label>Location</label>
                 <input type="text" id="location" name="location" required>
 
-                 <label>Education Level</label>
+                <label>Education Level</label>
                 <input type="text" id="educationLevel" name="education-level" placeholder="e.g. Bachelor's Degree" required>
                 
                 <label>Required Skills</label>
@@ -143,7 +155,11 @@
                         skills: document.getElementById('skills') ? document.getElementById('skills').value : '', 
                         experience: document.getElementById('experienceLevel') ? document.getElementById('experienceLevel').value : '', 
                         salary: document.getElementById('salary') ? document.getElementById('salary').value : '',
-                        workMode: document.getElementById('workMode') ? document.getElementById('workMode').value : ''
+                        workMode: document.getElementById('workMode') ? document.getElementById('workMode').value : '',
+                        companyAssets: document.getElementById('companyAssets') ? document.getElementById('companyAssets').value : '',
+                        noOfEmployees: document.getElementById('noOfEmployees') ? document.getElementById('noOfEmployees').value : '',
+                        companyCeo: document.getElementById('companyCeo') ? document.getElementById('companyCeo').value : '',
+                        companySector: document.getElementById('companySector') ? document.getElementById('companySector').value : ''
                     };
 
                     fetch('/api/jobs/create', {
