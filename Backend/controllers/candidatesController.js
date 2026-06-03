@@ -1,17 +1,69 @@
 const fs = require('fs');
 const path = require('path');
 
-const csvPath = path.join(__dirname, '../../Database/jobSeekers.csv');
-const candidates = [
-    { name: 'John Doe', skills: 'JavaScript', experience: 2 },
-    { name: 'Anna Smith', skills: 'UI Design', experience: 3 },
-    { name: 'Mike Brown', skills: 'Python', experience: 1 }
-];
-
 function getAllCandidates(req, res) {
-    res.json(candidates);
+    const db = req.app.locals.db;
+    db.all('SELECT * FROM jobSeekers', [], (err, rows) => {
+        if (err) {
+            console.error("Database error:", err.message);
+            return res.status(500).json({ success: false, error: err.message });
+        }
+        res.json(rows);
+    });
 }
 
+function getProfileById(req, res) {
+    const { id } = req.params;
+    const db = req.app.locals.db;
+
+    db.get('SELECT * FROM jobSeekers WHERE "Index" = ?', [id], (err, row) => {
+        if (err || !row) {
+            return res.status(404).json({ success: false, message: 'Profile not found' });
+        }
+        res.json({
+            success: true,
+            profile: {
+                id: row.Index,
+                firstName: row['First Name'],
+                lastName: row['Last Name'],
+                email: row.Email, 
+                phone: row.Phone,
+                university: row.Education, 
+                major: row.Major_Study,
+                experience: row.Experience,       
+                workExperience: row.workExperience,
+                preferredLocation: row.preferredLocation,
+                workingMode: row.preferredWorkMode, 
+                skills: row.skills
+            }
+        });
+    });
+}
+
+function updateProfile(req, res) {
+    const { id, name, email, phone, university, major, experience, workExperience, skills, workingMode, preferredLocation } = req.body;
+    const db = req.app.locals.db;
+
+    const nameParts = name ? name.trim().split(' ') : ['Anonymous', ''];
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const sql = `UPDATE jobSeekers SET 
+        "First Name" = ?, "Last Name" = ?, Email = ?, Phone = ?, 
+        Education = ?, Major_Study = ?, Experience = ?, workExperience = ?,
+        preferredLocation = ?, preferredWorkMode = ?, skills = ? 
+        WHERE "Index" = ?`;
+
+    const params = [firstName, lastName, email, phone, university, major, experience, workExperience, preferredLocation, workingMode, skills, id];
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            console.error('Update failed:', err.message);
+            return res.status(500).json({ success: false, error: 'Database update error' });
+        }
+        res.json({ success: true, message: 'Profile synchronized perfectly to SQLite!' });
+    });
+}
 function uploadResume(req, res) {
     if (!req.file) {
         return res.status(400).json({ success: false, message: 'No file uploaded' });
@@ -28,100 +80,5 @@ function getResume(req, res) {
         res.status(404).json({ success: false, message: 'Resume not found' });
     }
 }
-function getProfileById(req, res) {
-    const { id } = req.params;
-    try {
-        const fileContent = fs.readFileSync(csvPath, 'utf8');
-        const lines = fileContent.trim().split('\n');
-        const row = lines.slice(1).find(line => {
-            const firstComma = line.indexOf(',');
-            if (firstComma === -1) return false;
-            return line.substring(0, firstComma).trim() === id.trim();
-        });
 
-        if (!row) {
-            return res.status(404).json({ success: false, message: 'Profile not found' });
-        }
-        const fields = [];
-        let current = '';
-        let inQuotes = false;
-        for (let i = 0; i < row.length; i++) {
-            const char = row[i];
-            if (char === '"') inQuotes = !inQuotes;
-            else if (char === ',' && !inQuotes) {
-                fields.push(current.trim().replace(/^"|"$/g, ''));
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-        fields.push(current.trim().replace(/^"|"$/g, ''));
-        res.json({
-            success: true,
-            profile: {
-                id: fields[0],
-                firstName: fields[1],
-                lastName: fields[2],
-                email: fields[5],
-                phone: fields[6],
-                university: fields[7],
-                major: fields[9],
-                experience: fields[12],        
-                preferredLocation: fields[13], 
-                workingMode: fields[14],        
-                skills: fields[15]             
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-}
-function updateProfile(req, res) {
-    const { id, name, email, phone, university, major, experience, skills, workingMode, preferredLocation } = req.body;
-
-    const escapeCsv = (val) => {
-        if (!val) return '""';
-        let str = String(val).replace(/"/g, '""');
-        return `"${str}"`;
-    };
-
-    try {
-        let fileContent = fs.readFileSync(csvPath, 'utf8');
-        let lines = fileContent.split('\n');
-        
-        const nameParts = name ? name.trim().split(' ') : ['Anonymous', ''];
-        const firstName = nameParts[0];
-        const lastName = nameParts.slice(1).join(' ') || '';
-        const updatedRow = `${id},${escapeCsv(firstName)},${escapeCsv(lastName)},"","",${escapeCsv(email)},${escapeCsv(phone)},${escapeCsv(university)},"",${escapeCsv(major)},"","3",${escapeCsv(experience)},${escapeCsv(preferredLocation)},${escapeCsv(workingMode)},${escapeCsv(skills)}`;
-        
-        let targetLineIndex = -1;
-        for (let i = 1; i < lines.length; i++) {
-            const firstComma = lines[i].indexOf(',');
-            if (firstComma !== -1 && lines[i].substring(0, firstComma).trim() === String(id).trim()) {
-                targetLineIndex = i;
-                break;
-            }
-        }
-        if (targetLineIndex !== -1) {
-            lines[targetLineIndex] = updatedRow; 
-            console.log(`Already updated [ID: ${id}] in CSV`);
-        } else {
-            lines.push(updatedRow); 
-        }
-
-        fs.writeFileSync(csvPath, lines.join('\n'), 'utf8');
-        res.json({ success: true, message: 'Profile synchronized perfectly!' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: 'Database update error' });
-    }
-}
-
-module.exports = {
-    getAllCandidates,
-    uploadResume,
-    getResume,
-    getProfileById,
-    updateProfile 
-};
+module.exports = { getAllCandidates, uploadResume, getResume, getProfileById, updateProfile };

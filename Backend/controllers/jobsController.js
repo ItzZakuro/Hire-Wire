@@ -84,9 +84,67 @@ function createJob(req, res) {
         });
     });
 }
+function getJobsByOwner(req, res) {
+    const db = req.app.locals.db;
+    const { ownerId } = req.params;
 
+    db.all('SELECT * FROM jobListings WHERE ownerId = ?', [ownerId], (err, rows) => {
+        if (err) {
+            console.error("Database error:", err.message);
+            return res.status(500).json({ success: false, error: err.message });
+        }
+        res.json(rows);
+    });
+}
+
+function deleteJob(req, res) {
+    const { id } = req.params;
+    const db = req.app.locals.db;
+
+    db.run('DELETE FROM jobListings WHERE jobID = ?', [id], function(err) {
+        if (err) {
+            console.error('Failed to delete job:', err.message);
+            return res.status(500).json({ success: false, error: 'Database delete error' });
+        }
+        res.json({ success: true, message: 'Job successfully removed!' });
+    });
+}
+function updateJob(req, res) {
+    const { id } = req.params;
+    const {
+        jobTitle, jobDescription, location, education, skills,
+        experience, salary, workMode, companyName, companySector
+    } = req.body;
+    
+    const db = req.app.locals.db;
+
+    const sql = `
+        UPDATE jobListings 
+        SET jobTitle = ?, jobDescription = ?, jobLocation = ?, educationLevel = ?, 
+            requiredSkills = ?, experience = ?, salary = ?, workMode = ?, 
+            companyName = ?, companySector = ?
+        WHERE jobID = ?
+    `;
+
+    const params = [
+        jobTitle, jobDescription, location, education, 
+        skills, experience, salary, workMode, 
+        companyName, companySector, id
+    ];
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            console.error('Failed to update job:', err.message);
+            return res.status(500).json({ success: false, error: 'Database update error' });
+        }
+        res.json({ success: true, message: 'Job successfully updated!' });
+    });
+}
 module.exports = {
     getAllJobs,
     searchJobs,
-    createJob 
+    createJob,
+    getJobsByOwner,
+    deleteJob,
+    updateJob
 };

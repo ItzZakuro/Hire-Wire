@@ -7,78 +7,120 @@ if (menuBtn && navLinks) {
     });
 }
 
-let candidates = [];
+let allCandidatesRaw = []; 
+let candidates = [];      
 let currentIndex = 0;
 let likedCount = 0;
 let passedCount = 0;
 
-async function loadCandidates() {
+async function initEMatch() {
     try {
-        const currentUserId = localStorage.getItem('currentUserId');
-        const isMember = localStorage.getItem('isMember') === 'true';
-        
-        // 前端通过 API 拿数据，完美享受后端 SQLite 升级的红利！
-        const jobsResponse = await fetch('/api/jobs'); 
-        const allJobs = await jobsResponse.json();
-        const myJobs = allJobs.filter(job => String(job.ownerId) === String(currentUserId));
-        
-        const candidatesResponse = await fetch('/api/candidates'); 
-        let allCandidates = await candidatesResponse.json();
+        const currentUserId = localStorage.getItem('currentUserId') || '1001';
+        const jobSelect = document.getElementById('jobSelect');
+        const [jobsRes, candidatesRes] = await Promise.all([
+            fetch(`/api/jobs/owner/${currentUserId}`),
+            fetch('/api/candidates')
+        ]);
+
+        const myJobs = await jobsRes.json();
+        let allCandidates = await candidatesRes.json();
 
         if (!Array.isArray(allCandidates)) {
             allCandidates = allCandidates.data || allCandidates.candidates || [];
         }
-        
-        if (myJobs.length > 0 && allCandidates.length > 0) {
-            const latestJob = myJobs[myJobs.length - 1]; 
-            // 完美兼容：数据库里的 requiredSkills 字段
-            const requiredSkills = (latestJob.requiredSkills || latestJob.skills || '').toLowerCase();
-            const reqSkillArray = requiredSkills.split(',').map(s => s.trim()).filter(s => s !== '');
+        allCandidatesRaw = allCandidates; 
 
-            allCandidates.forEach(candidate => {
-                let matchScore = 0;
-                // 兼容求职者数据库里的技能字段
-                const candidateSkills = (candidate.skills || candidate.requiredSkills || '').toLowerCase();
-                reqSkillArray.forEach(skill => {
-                    if (candidateSkills.includes(skill)) {
-                        matchScore += 10; 
-                    }
-                });
-                candidate.matchScore = matchScore; 
+        if (jobSelect) {
+            jobSelect.innerHTML = ''; 
+            if (myJobs.length === 0) {
+                jobSelect.innerHTML = '<option value="">You haven\'t posted any jobs yet</option>';
+                candidates = allCandidatesRaw.sort(() => Math.random() - 0.5);
+                triggerCardRender();
+                return;
+            }
+
+            myJobs.forEach((job, index) => {
+                const option = document.createElement('option');
+                option.value = job.jobID; 
+                option.textContent = `${job.jobTitle} (${job.companyName || 'My Company'})`;
+                if (index === myJobs.length - 1) option.selected = true;
+                jobSelect.appendChild(option);
             });
-            allCandidates.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
-        } else {
-            allCandidates = allCandidates.sort(() => Math.random() - 0.5);
+
+            jobSelect.addEventListener('change', (e) => {
+                const selectedJobId = e.target.value;
+                const activeJob = myJobs.find(j => String(j.jobID) === String(selectedJobId));
+                runMatchingAlgorithm(activeJob);
+            });
+
+            const defaultJob = myJobs[myJobs.length - 1];
+            runMatchingAlgorithm(defaultJob);
         }
-        
-        candidates = isMember ? allCandidates : allCandidates.slice(0, 10);
-        if (candidates.length > 0) {
-            showCard(candidates[currentIndex]);
-        } else {
-            showEmptyState();
-        }
+
     } catch (err) {
-        console.error('Failed to load candidates:', err);
+        console.error('Failed to initialize ematch page:', err);
         const nameNode = document.getElementById('candidateName');
-        if (nameNode) nameNode.textContent = 'Error loading candidates. Please check backend.';
+        if (nameNode) nameNode.textContent = 'Error loading data. Please check backend.';
+    }
+}
+
+function runMatchingAlgorithm(selectedJob) {
+    if (!selectedJob || allCandidatesRaw.length === 0) return;
+
+    const requiredSkills = (selectedJob.requiredSkills || selectedJob.skills || '').toLowerCase();
+    const reqSkillArray = requiredSkills.split(',').map(s => s.trim()).filter(s => s !== '');
+    allCandidatesRaw.forEach(candidate => {
+        let matchScore = 0;
+        const candidateSkills = (candidate.skills || '').toLowerCase();
+        
+        reqSkillArray.forEach(skill => {
+            if (candidateSkills.includes(skill)) {
+                matchScore += 10; 
+            }
+        });
+        candidate.matchScore = matchScore; 
+    });
+
+    allCandidatesRaw.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+
+    const isMember = localStorage.getItem('isMember') === 'true';
+    candidates = isMember ? allCandidatesRaw : allCandidatesRaw.slice(0, 10);
+
+    currentIndex = 0;
+    triggerCardRender();
+}
+
+function triggerCardRender() {
+    const swipeCard = document.getElementById('swipeCard');
+    if (swipeCard && swipeCard.innerHTML.includes('No more')) {
+        window.location.reload(); 
+        return;
+    }
+
+    if (candidates.length > 0) {
+        showCard(candidates[currentIndex]);
+    } else {
+        showEmptyState();
     }
 }
 
 function showCard(candidate) {
     if (!candidate) return;
-    const fullName = `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim();
-    
-    document.getElementById('candidateName').textContent = fullName || 'Unknown Candidate';
+    const fName = candidate.firstName || candidate['First Name'] || '';
+    const lName = candidate.lastName || candidate['Last Name'] || '';
+    const fullName = `${fName} ${lName}`.trim();
+    const scoreTag = candidate.matchScore > 0 ? ` <span style="color:#a89676; font-size:0.7em;">(Match: ${candidate.matchScore} pts)</span>` : ' <span style="color:#999; font-size:0.7em;">(No Skill Match)</span>';
+
+    document.getElementById('candidateName').innerHTML = (fullName || 'Unknown Candidate') + scoreTag;
     document.getElementById('candidateRole').textContent = candidate.preferredWorkMode || 'N/A';
-    document.getElementById('candidateEducation').textContent = candidate.educationLevel || 'N/A';
-    document.getElementById('candidateExperience').textContent = candidate.yearsExperience || 'N/A';
+    document.getElementById('candidateEducation').textContent = candidate.educationLevel || candidate.Education || 'N/A';
+    document.getElementById('candidateExperience').textContent = (candidate.yearsExperience || candidate.Experience || '0') + ' yrs';
     
-    // 兼容前端展示字段
-    const rawSkills = candidate.skills || candidate.requiredSkills || '';
+    const rawSkills = candidate.skills || '';
     const allSkills = rawSkills.split(',').filter(s => s.trim() !== '');
     const topSkills = allSkills.slice(0, 4).join(', ');
     document.getElementById('candidateSkills').textContent = topSkills || 'No skills listed';
-    document.getElementById('candidateDescription').textContent = candidate.workExperience || candidate.jobDescription || 'No experience detailed.';
+    document.getElementById('candidateDescription').textContent = candidate.workExperience || 'No experience detailed.';
 }
 
 function showEmptyState() {
@@ -97,7 +139,7 @@ function nextCard() {
     } else {
         const swipeCard = document.getElementById('swipeCard');
         if (swipeCard) {
-            swipeCard.innerHTML = '<h2 style="text-align:center; padding: 40px 0; color: #504e4a;">No more candidates!</h2>';
+            swipeCard.innerHTML = '<h2 style="text-align:center; padding: 40px 0; color: #504e4a;">No more candidates for this job!</h2>';
         }
     }
 }
@@ -106,7 +148,9 @@ const likeBtn = document.getElementById('likeBtn');
 if (likeBtn) {
     likeBtn.addEventListener('click', () => {
         if (currentIndex >= candidates.length) return;
-        const name = `${candidates[currentIndex].firstName || ''} ${candidates[currentIndex].lastName || ''}`.trim();
+        const fName = candidates[currentIndex].firstName || candidates[currentIndex]['First Name'] || '';
+        const lName = candidates[currentIndex].lastName || candidates[currentIndex]['Last Name'] || '';
+        const name = `${fName} ${lName}`.trim();
         
         const statusText = document.getElementById('statusText');
         if (statusText) statusText.textContent = `You liked: ${name}`;
@@ -123,7 +167,9 @@ const passBtn = document.getElementById('passBtn');
 if (passBtn) {
     passBtn.addEventListener('click', () => {
         if (currentIndex >= candidates.length) return;
-        const name = `${candidates[currentIndex].firstName || ''} ${candidates[currentIndex].lastName || ''}`.trim();
+        const fName = candidates[currentIndex].firstName || candidates[currentIndex]['First Name'] || '';
+        const lName = candidates[currentIndex].lastName || candidates[currentIndex]['Last Name'] || '';
+        const name = `${fName} ${lName}`.trim();
         
         const statusText = document.getElementById('statusText');
         if (statusText) statusText.textContent = `You passed: ${name}`;
@@ -137,5 +183,5 @@ if (passBtn) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadCandidates();
+    initEMatch();
 });

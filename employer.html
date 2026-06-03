@@ -57,12 +57,18 @@
                     <p><strong>Education:</strong> <span id="candidateEducation"></span></p>
                     <p><strong>Experience:</strong> <span id="candidateExperience"></span></p>
                     <p><strong>Skills:</strong> <span id="candidateSkills"></span></p>
-                    <p id="candidateDescription"></p>
-                    
+                    <p id="candidateDescription"></p>    
+
                     <div class="swipeButtons">
                         <button class="passBtn" id="passBtn">Pass</button>
                         <button class="likeBtn" id="likeBtn">Like</button>
                     </div>
+                </div>
+                <div class="job-selector-container" style="text-align: center; margin-bottom: 20px;">
+                    <label for="jobSelect" style="font-weight: bold; color: #504e4a; margin-right: 10px;">Select Active Job Listing to Match:</label>
+                    <select id="jobSelect" style="padding: 10px 20px; border: 2px solid #a89676; border-radius: 5px; background: #fff; font-size: 1aem; color: #333;">
+                        <option value="">-- Loading your posted jobs... --</option>
+                    </select>
                 </div>
 
                 <div class="resultBox">
@@ -84,7 +90,7 @@
                     <div class="candidateCard">
                         <h3>${candidates.fullName}</h3>
                         <p><strong>Experience:</strong> ${candidates.experience}</p>
-                        <p><strong>Education:</strong> ${jcandidatesob.educationLevel}</p>
+                        <p><strong>Education:</strong> ${candidates.educationLevel}</p>
                         <p><strong>Years of Experience:</strong> ${candidates.yearsExperience}</p>
                         <p><strong>Experience:</strong> ${candidates.experience}</p>
                         <p><strong>Preferred Location:</strong> ${candidates.preferredLocation} years</p>

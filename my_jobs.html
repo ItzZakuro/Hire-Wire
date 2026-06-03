@@ -7,8 +7,14 @@
         <title>HireWire - My Posted Jobs</title>
         <style>
             .jobs-container { padding: 40px 0; background: #f4f4f4; min-height: 80vh; }
-            .job-card { background: white; padding: 25px; margin-bottom: 20px; border-top: 4px solid #a89676; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+            .job-card { background: white; padding: 25px; margin-bottom: 20px; border-top: 4px solid #a89676; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; }
             .no-jobs { text-align: center; color: #888; font-size: 1.2em; margin-top: 50px; }
+            .action-btns { margin-top: 20px; display: flex; gap: 10px; }
+            .btn-edit { background: #a89676; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+            .btn-delete { background: #d9534f; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+            .btn-cancel { background: #ccc; color: #333; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+            .edit-form { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd; display: none; }
+            .edit-form input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
         </style>
         <script>
             if (!localStorage.getItem('currentUserId')) {
@@ -45,7 +51,7 @@
         <section class="jobs-container">
             <div class="container">
                 <h1 class="accent-title" style="margin-bottom: 10px; text-align: center; color: #333;">MY POSTED JOBS</h1>
-                <p style="margin-bottom: 30px; text-align: center; color: #666;">Below are the jobs managed by your account.</p>
+                <p style="margin-bottom: 30px; text-align: center; color: #666;">Manage your job listings. You can edit or remove them anytime.</p>
                 <div id="myJobsList" style="max-width: 800px; margin: auto;"></div>
             </div>
         </section>
@@ -59,6 +65,8 @@
                 });
             }
 
+            window.myJobsData = [];
+
             document.addEventListener('DOMContentLoaded', () => {
                 const myJobsList = document.getElementById('myJobsList');
                 const myId = localStorage.getItem('currentUserId'); 
@@ -66,20 +74,42 @@
                 fetch('/api/jobs') 
                     .then(res => res.json())
                     .then(allJobs => {
-                        const myFilteredJobs = allJobs.filter(job => String(job.ownerId) === String(myId));
+                        window.myJobsData = allJobs.filter(job => String(job.ownerId) === String(myId));
 
-                        if (myFilteredJobs.length === 0) {
+                        if (window.myJobsData.length === 0) {
                             myJobsList.innerHTML = `<p class="no-jobs">🔍 You haven't posted any jobs under this account yet.</p>`;
                             return;
                         }
 
-                        myJobsList.innerHTML = myFilteredJobs.map(job => `
-                            <div class="job-card">
-                                <h3 style="font-family: Impact, sans-serif; text-transform: uppercase;">${job.jobTitle}</h3>
-                                <p><strong>Company:</strong> ${job.companyName}</p>
-                                <p><strong>Location:</strong> ${job.jobLocation || 'N/A'}</p>
-                                <p><strong>Salary:</strong> ${job.salary || 'N/A'}</p>
-                                <p style="color: #a89676; font-size: 0.85em; margin-top: 10px;">Managed by Owner ID: ${job.ownerId} (You)</p>
+                        myJobsList.innerHTML = window.myJobsData.map(job => `
+                            <div class="job-card" id="card-${job.jobID}">
+                                
+                                <div id="info-${job.jobID}">
+                                    <h3 style="font-family: Impact, sans-serif; text-transform: uppercase;">${job.jobTitle}</h3>
+                                    <p><strong>Company:</strong> ${job.companyName}</p>
+                                    <p><strong>Location:</strong> ${job.jobLocation || 'N/A'}</p>
+                                    <p><strong>Salary:</strong> ${job.salary || 'N/A'}</p>
+                                    <p style="color: #a89676; font-size: 0.85em; margin-top: 10px;">Managed by Owner ID: ${job.ownerId} (You)</p>
+                                    
+                                    <div class="action-btns">
+                                        <button class="btn-edit" onclick="toggleEdit('${job.jobID}')">Edit Job</button>
+                                        <button class="btn-delete" onclick="handleDelete('${job.jobID}')">Remove</button>
+                                    </div>
+                                </div>
+
+                                <div class="edit-form" id="edit-${job.jobID}">
+                                    <h4 style="margin-bottom: 10px; color:#a89676;">Edit Job Details</h4>
+                                    <input type="text" id="title-${job.jobID}" value="${job.jobTitle}" placeholder="Job Title">
+                                    <input type="text" id="company-${job.jobID}" value="${job.companyName}" placeholder="Company Name">
+                                    <input type="text" id="location-${job.jobID}" value="${job.jobLocation}" placeholder="Location">
+                                    <input type="number" id="salary-${job.jobID}" value="${job.salary}" placeholder="Salary">
+                                    
+                                    <div class="action-btns">
+                                        <button class="btn-edit" onclick="handleSave('${job.jobID}')"> Save Changes</button>
+                                        <button class="btn-cancel" onclick="toggleEdit('${job.jobID}')">Cancel</button>
+                                    </div>
+                                </div>
+
                             </div>
                         `).join('');
                     })
@@ -87,6 +117,70 @@
                         myJobsList.innerHTML = `<p class="no-jobs" style="color: red;">Error fetching your jobs.</p>`;
                     });
             });
+
+            window.toggleEdit = function(jobId) {
+                const infoDiv = document.getElementById(`info-${jobId}`);
+                const editDiv = document.getElementById(`edit-${jobId}`);
+                if (editDiv.style.display === 'none' || editDiv.style.display === '') {
+                    infoDiv.style.display = 'none';
+                    editDiv.style.display = 'block';
+                } else {
+                    infoDiv.style.display = 'block';
+                    editDiv.style.display = 'none';
+                }
+            };
+
+            window.handleDelete = function(jobId) {
+                if (!confirm("Are you sure you want to remove this job? This action cannot be undone.")) {
+                    return;
+                }
+                
+                fetch(`/api/jobs/delete/${jobId}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Job removed successfully!');
+                            window.location.reload(); 
+                        } else {
+                            alert('Failed to remove job: ' + data.error);
+                        }
+                    })
+                    .catch(err => alert('Network error!'));
+            };
+
+            window.handleSave = function(jobId) {
+                const originalJob = window.myJobsData.find(j => String(j.jobID) === String(jobId));
+
+                const updatedData = {
+                    jobTitle: document.getElementById(`title-${jobId}`).value,
+                    companyName: document.getElementById(`company-${jobId}`).value,
+                    location: document.getElementById(`location-${jobId}`).value,
+                    salary: document.getElementById(`salary-${jobId}`).value,
+
+                    jobDescription: originalJob.jobDescription || '',
+                    education: originalJob.educationLevel || '',
+                    skills: originalJob.requiredSkills || '',
+                    experience: originalJob.experience || '',
+                    workMode: originalJob.workMode || '',
+                    companySector: originalJob.companySector || ''
+                };
+
+                fetch(`/api/jobs/update/${jobId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Job updated successfully!');
+                        window.location.reload();
+                    } else {
+                        alert('Failed to update job: ' + data.error);
+                    }
+                })
+                .catch(err => alert('Network error!'));
+            };
         </script>
 
         <script>

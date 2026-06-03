@@ -35,99 +35,37 @@ var allFilters = [
     ageFilter
 ];
 
-function parseCsv(csvText) {
-    var rows = [];
-    var row = [];
-    var currentValue = '';
-    var insideQuotes = false;
-
-    for (var i = 0; i < csvText.length; i += 1) {
-        var character = csvText[i];
-        var nextCharacter = csvText[i + 1];
-
-        if (character === '"' && insideQuotes && nextCharacter === '"') {
-            currentValue += '"';
-            i += 1;
-        } else if (character === '"') {
-            insideQuotes = !insideQuotes;
-        } else if (character === ',' && !insideQuotes) {
-            row.push(currentValue);
-            currentValue = '';
-        } else if ((character === '\n' || character === '\r') && !insideQuotes) {
-            if (character === '\r' && nextCharacter === '\n') {
-                i += 1;
-            }
-            row.push(currentValue);
-            if (row.length > 1 || row[0] !== '') {
-                rows.push(row);
-            }
-            row = [];
-            currentValue = '';
-        } else {
-            currentValue += character;
-        }
-    }
-
-    if (currentValue !== '' || row.length > 0) {
-        row.push(currentValue);
-        rows.push(row);
-    }
-
-    return rows;
-}
-
-function convertRowsToCandidates(rows) {
-    var headers = rows[0];
-    var candidates = [];
-
-    for (var i = 1; i < rows.length; i += 1) {
-        var row = rows[i];
-        var candidate = {};
-
-        for (var j = 0; j < headers.length; j += 1) {
-            candidate[headers[j]] = row[j] || '';
-        }
-
-        candidates.push(candidate);
-    }
-
-    return candidates;
-}
-
 function getCandidateName(candidate) {
-    return (candidate['First Name'] + ' ' + candidate['Last Name']).trim();
+    var firstName = candidate.firstName || candidate['First Name'] || '';
+    var lastName = candidate.lastName || candidate['Last Name'] || '';
+    return (firstName + ' ' + lastName).trim() || 'Unknown Candidate';
 }
 
 function getUniqueValues(fieldName) {
     var values = [];
-
     for (var i = 0; i < candidatesData.length; i += 1) {
         var value = candidatesData[i][fieldName];
-
         if (value && values.indexOf(value) === -1) {
             values.push(value);
         }
     }
-
     values.sort();
     return values;
 }
 
 function getUniqueSkills() {
     var skills = [];
-
     for (var i = 0; i < candidatesData.length; i += 1) {
-        var skillList = candidatesData[i].skills.split(',');
+        var skillStr = candidatesData[i].skills || '';
+        var skillList = skillStr.split(',');
 
         for (var j = 0; j < skillList.length; j += 1) {
             var skill = skillList[j].trim();
-
             if (skill !== '' && skills.indexOf(skill) === -1) {
                 skills.push(skill);
             }
         }
     }
-
     skills.sort();
     return skills;
 }
@@ -144,9 +82,9 @@ function addOptions(selectElement, values) {
 function setupFilterOptions() {
     addOptions(locationFilter, getUniqueValues('preferredLocation'));
     addOptions(skillsFilter, getUniqueSkills());
-    addOptions(educationFilter, getUniqueValues('Education'));
+    addOptions(educationFilter, getUniqueValues('educationLevel') || getUniqueValues('Education'));
     addOptions(workModeFilter, getUniqueValues('preferredWorkMode'));
-    addOptions(studyCategoryFilter, getUniqueValues('Study_Category'));
+    addOptions(studyCategoryFilter, getUniqueValues('Study_Category') || getUniqueValues('majorStudy'));
     addOptions(genderFilter, getUniqueValues('Sex'));
 }
 
@@ -158,17 +96,15 @@ function valueMatchesRange(value, selectedRange) {
     if (selectedRange === 'all') {
         return true;
     }
-
     var parts = selectedRange.split('-');
     var minimum = Number(parts[0]);
     var maximum = Number(parts[1]);
-    var numberValue = Number(String(value).replace(/[^0-9.]/g, ''));
-
+    var numberValue = Number(String(value || '0').replace(/[^0-9.]/g, ''));
     return numberValue >= minimum && numberValue < maximum;
 }
 
 function escapeHtml(value) {
-    return String(value)
+    return String(value || '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -190,17 +126,22 @@ function renderCandidates(candidatesToRender) {
         var card = document.createElement('div');
         card.className = 'candidate-card';
 
+        var exp = candidate.yearsExperience || candidate.Experience || '0';
+        var edu = candidate.educationLevel || candidate.Education || 'N/A';
+        var category = candidate.Study_Category || candidate.majorStudy || 'General';
+        var workExp = candidate.workExperience || 'No experience detailed.';
+
         card.innerHTML = '' +
             '<h3>' + escapeHtml(getCandidateName(candidate)) + '</h3>' +
-            '<div class="skills">' + escapeHtml(candidate.skills) + '</div>' +
-            '<div class="experience">' + escapeHtml(candidate.Experience) + ' year(s) experience</div>' +
+            '<div class="skills">' + escapeHtml(candidate.skills || 'No skills listed') + '</div>' +
+            '<div class="experience">' + escapeHtml(exp) + ' year(s) experience</div>' +
             '<div class="tags">' +
-                '<span class="tag">' + escapeHtml(candidate.preferredLocation) + '</span>' +
-                '<span class="tag">' + escapeHtml(candidate.preferredWorkMode) + '</span>' +
-                '<span class="tag">' + escapeHtml(candidate.Education) + '</span>' +
-                '<span class="tag">' + escapeHtml(candidate.Study_Category) + '</span>' +
+                '<span class="tag">' + escapeHtml(candidate.preferredLocation || 'Any') + '</span>' +
+                '<span class="tag">' + escapeHtml(candidate.preferredWorkMode || 'Any') + '</span>' +
+                '<span class="tag">' + escapeHtml(edu) + '</span>' +
+                '<span class="tag">' + escapeHtml(category) + '</span>' +
             '</div>' +
-            '<p class="location">' + escapeHtml(candidate.workExperience) + '</p>' +
+            '<p class="location">' + escapeHtml(workExp) + '</p>' +
             '<a href="#" class="select-btn">Select Candidate</a>';
 
         candidateGrid.appendChild(card);
@@ -220,29 +161,26 @@ function filterCandidates() {
 
     var filteredCandidates = candidatesData.filter(function (candidate) {
         var candidateName = getCandidateName(candidate).toLowerCase();
+        var skills = (candidate.skills || '').toLowerCase();
+        var workExp = (candidate.workExperience || '').toLowerCase();
+        var studyCat = (candidate.Study_Category || candidate.majorStudy || '').toLowerCase();
+
         var matchesSearch = candidateName.indexOf(searchTerm) !== -1 ||
-                            candidate.skills.toLowerCase().indexOf(searchTerm) !== -1 ||
-                            candidate.workExperience.toLowerCase().indexOf(searchTerm) !== -1 ||
-                            candidate.Study_Category.toLowerCase().indexOf(searchTerm) !== -1;
+                            skills.indexOf(searchTerm) !== -1 ||
+                            workExp.indexOf(searchTerm) !== -1 ||
+                            studyCat.indexOf(searchTerm) !== -1;
 
         var matchesLocation = valueMatchesDropdown(candidate.preferredLocation, selectedLocation);
-        var matchesSkill = selectedSkill === 'all' || candidate.skills.indexOf(selectedSkill) !== -1;
-        var matchesEducation = valueMatchesDropdown(candidate.Education, selectedEducation);
-        var matchesExperience = valueMatchesRange(candidate.Experience, selectedExperience);
+        var matchesSkill = selectedSkill === 'all' || skills.indexOf(selectedSkill.toLowerCase()) !== -1;
+        var matchesEducation = valueMatchesDropdown(candidate.educationLevel || candidate.Education, selectedEducation);
+        var matchesExperience = valueMatchesRange(candidate.yearsExperience || candidate.Experience, selectedExperience);
         var matchesWorkMode = valueMatchesDropdown(candidate.preferredWorkMode, selectedWorkMode);
-        var matchesStudyCategory = valueMatchesDropdown(candidate.Study_Category, selectedStudyCategory);
+        var matchesStudyCategory = valueMatchesDropdown(candidate.Study_Category || candidate.majorStudy, selectedStudyCategory);
         var matchesGender = valueMatchesDropdown(candidate.Sex, selectedGender);
         var matchesAge = valueMatchesRange(candidate.Age, selectedAge);
 
-        return matchesSearch &&
-               matchesLocation &&
-               matchesSkill &&
-               matchesEducation &&
-               matchesExperience &&
-               matchesWorkMode &&
-               matchesStudyCategory &&
-               matchesGender &&
-               matchesAge;
+        return matchesSearch && matchesLocation && matchesSkill && matchesEducation &&
+               matchesExperience && matchesWorkMode && matchesStudyCategory && matchesGender && matchesAge;
     });
 
     renderCandidates(filteredCandidates);
@@ -250,11 +188,9 @@ function filterCandidates() {
 
 function clearAllFilters() {
     searchInput.value = '';
-
     for (var i = 0; i < allFilters.length; i += 1) {
         allFilters[i].value = 'all';
     }
-
     filterCandidates();
 }
 
@@ -269,15 +205,17 @@ for (var i = 0; i < allFilters.length; i += 1) {
     allFilters[i].addEventListener('change', filterCandidates);
 }
 
-fetch('Database/jobSeekers.csv')
+fetch('/api/candidates')
     .then(function (response) {
-        return response.text();
+        return response.json();
     })
-    .then(function (csvText) {
-        candidatesData = convertRowsToCandidates(parseCsv(csvText));
+    .then(function (data) {
+        console.log('Candidates loaded successfully from SQLite');
+        candidatesData = data;
         setupFilterOptions();
         renderCandidates(candidatesData);
     })
-    .catch(function () {
-        candidateGrid.innerHTML = '<p>Unable to load candidate listings. Please run this website through a local server so the CSV file can be loaded.</p>';
+    .catch(function (err) {
+        console.error('Fetch error:', err);
+        candidateGrid.innerHTML = '<p>Unable to load candidate listings. Please ensure the server is running.</p>';
     });

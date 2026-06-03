@@ -1,4 +1,3 @@
-
 const menuBtn = document.getElementById('menuBtn');
 const navLinks = document.getElementById('navLinks');
 
@@ -12,6 +11,7 @@ let jobs = [];
 let currentIndex = 0;
 let likedCount = 0;
 let passedCount = 0;
+
 function calculateMatchScore(job, myProfile) {
     let score = 0;
     const jobLoc = (job.jobLocation || '').toLowerCase();
@@ -38,15 +38,18 @@ function calculateMatchScore(job, myProfile) {
 
 async function loadJobs() {
     try {
-        const seekerRes = await fetch('../Database/jobSeekers.csv?t=' + new Date().getTime());
-        const seekerCsv = await seekerRes.text();
-        const seekerLines = seekerCsv.trim().split('\n').filter(line => line.length > 0);
-        const lastSeeker = seekerLines[seekerLines.length - 1].split(',');
+        const currentUserId = localStorage.getItem('currentUserId') || '1001';
+        const profileResponse = await fetch(`/api/candidates/profile/${currentUserId}`);
+        const profileData = await profileResponse.json();
 
-        const myProfile = {
-            location: lastSeeker[13] ? lastSeeker[13].replace(/"/g, '') : '',
-            workMode: lastSeeker[14] ? lastSeeker[14].replace(/"/g, '') : '',
-            skills: lastSeeker[15] ? lastSeeker[15].replace(/"/g, '') : ''
+        const myProfile = profileData.success ? {
+            location: profileData.profile.preferredLocation || '',
+            workMode: profileData.profile.workingMode || '',
+            skills: profileData.profile.skills || ''
+        } : {
+            location: '',
+            workMode: '',
+            skills: ''
         };
 
         const response = await fetch('/api/jobs');
@@ -72,7 +75,7 @@ async function loadJobs() {
 }
 
 function showCard(job) {
-    document.getElementById('jobTitle').innerHTML = `${job.jobTitle} <span style="color:#a89676; font-size:0.7em;">(Match: ${job.matchScore || 0} pts)</span>`;
+    document.getElementById('jobTitle').innerHTML = `${job.jobTitle || 'Untitled'} <span style="color:#a89676; font-size:0.7em;">(Match: ${job.matchScore || 0} pts)</span>`;
     document.getElementById('companyName').textContent = job.companyName || 'Unknown';
     document.getElementById('jobLocation').textContent = job.jobLocation || 'Unknown';
     document.getElementById('jobType').textContent = job.workMode || 'Unspecified';
@@ -82,7 +85,7 @@ function showCard(job) {
 
     const allSkills = (job.requiredSkills || '').split(',');
     const topSkills = allSkills.slice(0, 4).join(', ');
-    document.getElementById('jobSkills').textContent = topSkills;
+    document.getElementById('jobSkills').textContent = topSkills || 'No specific skills listed';
 }
 
 function nextCard() {
@@ -99,18 +102,24 @@ function nextCard() {
     }
 }
 
-document.getElementById('likeBtn').addEventListener('click', () => {
-    document.getElementById('statusText').textContent = `You liked: ${jobs[currentIndex].jobTitle}`;
-    likedCount++;
-    document.getElementById('likedCount').textContent = likedCount;
-    nextCard();
-});
+const likeBtn = document.getElementById('likeBtn');
+if (likeBtn) {
+    likeBtn.addEventListener('click', () => {
+        document.getElementById('statusText').textContent = `You liked: ${jobs[currentIndex].jobTitle}`;
+        likedCount++;
+        document.getElementById('likedCount').textContent = likedCount;
+        nextCard();
+    });
+}
 
-document.getElementById('passBtn').addEventListener('click', () => {
-    document.getElementById('statusText').textContent = `You passed: ${jobs[currentIndex].jobTitle}`;
-    passedCount++;
-    document.getElementById('passedCount').textContent = passedCount;
-    nextCard();
-});
+const passBtn = document.getElementById('passBtn');
+if (passBtn) {
+    passBtn.addEventListener('click', () => {
+        document.getElementById('statusText').textContent = `You passed: ${jobs[currentIndex].jobTitle}`;
+        passedCount++;
+        document.getElementById('passedCount').textContent = passedCount;
+        nextCard();
+    });
+}
 
 loadJobs();
