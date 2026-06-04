@@ -88,3 +88,46 @@ Columns:
 -- FROM jobSeekers
 -- GROUP BY studyCategory
 -- ; -- results: 16 different study categories
+
+CREATE DATABASE hirewire;
+
+USE hirewire;
+
+-- jobSeekers table
+CREATE TABLE jobSeekers (
+    jobSeekerID INT PRIMARY KEY,
+    firstName VARCHAR(300),
+    lastName VARCHAR(300),
+    age INT,
+    gender VARCHAR(300),
+    email VARCHAR(1000),
+    phone VARCHAR(1000),
+    educationLevel VARCHAR(1000),
+    majorCode INT,
+    majorStudy VARCHAR(1000),
+    studyCategory VARCHAR(1000),
+    yearsExperience INT,
+    workExperience VARCHAR(1000),
+    preferredLocation VARCHAR(300),
+    preferredWorkMode VARCHAR(300),
+    skills VARCHAR(6000)
+);
+
+-- jobListings table
+CREATE TABLE jobListings (
+    jobID INT PRIMARY KEY,
+    jobTitle VARCHAR(1000),
+    jobDescription TEXT,
+    jobLocation VARCHAR(300),
+    educationLevel VARCHAR(1000),
+    requiredSkills VARCHAR(6000),
+    experience INT,
+    salary INT,
+    workMode VARCHAR(300),
+    companyName VARCHAR(1000),
+    companyAssets VARCHAR(1000),
+    noOfEmployees INT,
+    companyCeo VARCHAR(1000),
+    companySector VARCHAR(1000),
+    ownerId INT
+);

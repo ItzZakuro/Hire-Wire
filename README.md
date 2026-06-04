@@ -147,6 +147,8 @@ Import the required tables:
 - jobSeekers
 - jobListings
 
+Run Database/starter_queries.sql before launching the application.
+
 ### 4. Configure Environment Variables
 
 Create a .env file in the Backend directory:
