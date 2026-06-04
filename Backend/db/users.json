@@ -41,6 +41,13 @@
       "password": "123123",
       "name": "Vovan",
       "isMember": false
+    },
+    {
+      "id": "6",
+      "email": "nikita@mail.com",
+      "password": "123123",
+      "name": "Nikita",
+      "isMember": false
     }
   ]
 }
