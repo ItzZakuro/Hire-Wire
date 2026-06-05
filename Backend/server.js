@@ -85,7 +85,7 @@ app.get('/api/joblistings/:id', (req, res) => {
 
 // endpoint for job seekers/candidates (returns all candidate data)
 app.get("/api/jobSeekers", (req, res) => { // tells the server to run this
-  db.query('SELECT * FROM jobSeekers', (err, results) => { // sends sql query to database 
+  db.query('SELECT * FROM jobseekers', (err, results) => { // sends sql query to database 
     // error handling
     if (err) return res.status(500).json({ error: err.message });
 
@@ -97,7 +97,7 @@ app.get("/api/jobSeekers", (req, res) => { // tells the server to run this
 // Single employee/candidate by ID (for the swipe card)
 app.get('/api/jobSeekers/:id', (req, res) => {
   db.query(
-    'SELECT * FROM jobSeekers WHERE id = ?',
+    'SELECT * FROM jobseekers WHERE id = ?',
     [req.params.id],
     (err, results) => {
       if (err) return res.status(500).json({ error: err.message });
