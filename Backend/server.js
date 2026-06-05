@@ -28,8 +28,8 @@ app.use(express.static(path.join(__dirname, '..'))); // frontend files
         node server.js
 
     Test the api, connection, and conversion to JSON by pasting these URLs into your browser:
-        http://localhost:3000/api/jobListings
-        http://localhost:3000/api/jobSeekers
+        http://localhost:3000/api/joblistings
+        http://localhost:3000/api/jobseekers
 */
 
 // give database connection info
@@ -53,8 +53,8 @@ db.connect(err => {
 
 /* -- API ROUTE STUFF -- */
 // endpoint for job listings/employers (returns all job listing data)
-app.get("/api/jobListings", (req, res) => {
-    // console.log("API HIT: /api/jobListings"); // debug
+app.get("/api/joblistings", (req, res) => {
+    // console.log("API HIT: /api/joblistings"); // debug
   db.query('SELECT * FROM joblistings', (err, results) => { // sends sql query to database
     // console.log("QUERY CALLBACK REACHED"); // debug
     
@@ -84,7 +84,7 @@ app.get('/api/joblistings/:id', (req, res) => {
 
 
 // endpoint for job seekers/candidates (returns all candidate data)
-app.get("/api/jobSeekers", (req, res) => { // tells the server to run this
+app.get("/api/jobseekers", (req, res) => { // tells the server to run this
   db.query('SELECT * FROM jobseekers', (err, results) => { // sends sql query to database 
     // error handling
     if (err) return res.status(500).json({ error: err.message });
@@ -95,7 +95,7 @@ app.get("/api/jobSeekers", (req, res) => { // tells the server to run this
 
 //--------------------------------------------
 // Single employee/candidate by ID (for the swipe card)
-app.get('/api/jobSeekers/:id', (req, res) => {
+app.get('/api/jobseekers/:id', (req, res) => {
   db.query(
     'SELECT * FROM jobseekers WHERE id = ?',
     [req.params.id],

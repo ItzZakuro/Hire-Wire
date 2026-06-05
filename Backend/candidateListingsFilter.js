@@ -279,7 +279,7 @@ for (var i = 0; i < allFilters.length; i += 1) {
 }
 
 // testing linkage toi database instead of csv
-fetch('http://localhost:3000/api/jobSeekers')
+fetch('http://localhost:3000/api/jobseekers')
     .then(function (response) {
         return response.json();
     })

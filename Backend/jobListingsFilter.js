@@ -308,7 +308,7 @@ for (var i = 0; i < allFilters.length; i += 1) {
 }
 
 // testing linkage toi database instead of csv
-fetch('http://localhost:3000/api/jobListings')
+fetch('http://localhost:3000/api/joblistings')
     .then(function (response) {
         return response.json();
     })

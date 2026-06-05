@@ -2,7 +2,7 @@ const Fuse = require('fuse.js');
 const db = require('../db/db');
 
 function getAllJobs(req, res) {
-    db.query('SELECT * FROM jobListings', (err, results) => {
+    db.query('SELECT * FROM joblistings', (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: err.message });
@@ -15,7 +15,7 @@ function getAllJobs(req, res) {
 function searchJobs(req, res) {
     const query = req.query.q;
 
-    db.query('SELECT * FROM jobListings', (err, results) => {
+    db.query('SELECT * FROM joblistings', (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: err.message });
@@ -61,7 +61,7 @@ function createJob(req, res) {
     } = req.body;
 
     const sql = `
-        INSERT INTO jobListings (
+        INSERT INTO joblistings (
             jobID,
             jobTitle,
             jobDescription,
@@ -79,7 +79,7 @@ function createJob(req, res) {
             ownerId
         )
         VALUES (
-            (SELECT IFNULL(MAX(j.jobID), 0) + 1 FROM jobListings j),
+            (SELECT IFNULL(MAX(j.jobID), 0) + 1 FROM joblistings j),
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     `;

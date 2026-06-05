@@ -53,7 +53,7 @@ async function loadJobs() {
             skills: ''
         };
 
-        const response = await fetch('http://localhost:3000/api/jobListings');
+        const response = await fetch('http://localhost:3000/api/joblistings');
         let allJobs = await response.json();
 
         allJobs.forEach(job => {

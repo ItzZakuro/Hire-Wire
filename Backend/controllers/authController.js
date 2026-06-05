@@ -38,7 +38,7 @@ function register(req, res) {
         const firstName = nameParts[0];
         const lastName = nameParts.slice(1).join(' ') || '';
 
-        const getNextIdSql = 'SELECT IFNULL(MAX(jobSeekerID), 0) + 1 AS nextId FROM jobSeekers';
+        const getNextIdSql = 'SELECT IFNULL(MAX(jobSeekerID), 0) + 1 AS nextId FROM jobseekers';
 
         db.query(getNextIdSql, (idErr, idResults) => {
             if (idErr) {
@@ -63,7 +63,7 @@ function register(req, res) {
             fs.writeFileSync(usersDbPath, JSON.stringify(usersData, null, 2), 'utf8');
 
             const insertSql = `
-                INSERT INTO jobSeekers (
+                INSERT INTO jobseekers (
                     jobSeekerID,
                     firstName,
                     lastName,

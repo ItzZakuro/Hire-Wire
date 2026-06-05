@@ -70,7 +70,7 @@ The project was developed as part of a university software development course an
 
 ## Database Structure
 
-### jobSeekers
+### jobseekers
 Stores candidate information:
 
 - jobSeekerID
@@ -90,7 +90,7 @@ Stores candidate information:
 - preferredWorkMode
 - skills
 
-### jobListings
+### joblistings
 Stores job postings:
 
 - jobID
@@ -130,11 +130,13 @@ This included:
 
 ### 1. Clone the repository
 
-bash git clone <repository-url> 
+bash git clone <https://github.com/ItzZakuro/Hire-Wire> 
 
 ### 2. Install dependencies
 
-bash npm install 
+npm install 
+
+npm install sqlite3
 
 ### 3. Create MySQL Database
 
@@ -144,8 +146,8 @@ sql CREATE DATABASE hirewire;
 
 Import the required tables:
 
-- jobSeekers
-- jobListings
+- jobseekers
+- joblistings
 
 Run Database/starter_queries.sql before launching the application.
 

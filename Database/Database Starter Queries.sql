@@ -7,7 +7,7 @@ Date: 12/04/2026
 Database Name: HireWireDB
 
 
-Table Name #1: jobSeekers (this is for employee/candidate data)
+Table Name #1: jobseekers (this is for employee/candidate data)
 No. Of Rows: 1000
 Columns:
 	jobSeekerID			int,
@@ -28,7 +28,7 @@ Columns:
     skills				varchar(6000)
 
 
-Table Name #2: jobListings (this is for job/employer data)
+Table Name #2: joblistings (this is for job/employer data)
 No. Of Rows: 1000
 Columns:
 	jobID				int,
@@ -53,8 +53,8 @@ Columns:
 */
 
 
--- /* select all rows of data from the jobSeekers table */
--- SELECT * FROM jobSeekers;
+-- /* select all rows of data from the jobseekers table */
+-- SELECT * FROM jobseekers;
 
 
 -- /* project instructions say the candidate profile should contain the following columns */
@@ -64,28 +64,28 @@ Columns:
 --     educationLevel AS education,
 --     studyCategory AS majorFieldOfStudy,
 --     experience AS yearsOfExperience
--- FROM jobSeekers
+-- FROM jobseekers
 -- LIMIT 10
 -- ;
 
 
 -- /* see the different types of education */
 -- SELECT educationLevel
--- FROM jobSeekers
+-- FROM jobseekers
 -- GROUP BY educationLevel
 -- ; -- results: Bachelors, Masters, High School, PHD
 
 
 -- /* see the different types of major names */
 -- SELECT majorStudy
--- FROM jobSeekers
+-- FROM jobseekers
 -- GROUP BY majorStudy
 -- ; -- results: 173 different majors
 
 
 -- /* see the different types of study categories */
 -- SELECT studyCategory
--- FROM jobSeekers
+-- FROM jobseekers
 -- GROUP BY studyCategory
 -- ; -- results: 16 different study categories
 
@@ -93,8 +93,8 @@ CREATE DATABASE hirewire;
 
 USE hirewire;
 
--- jobSeekers table
-CREATE TABLE jobSeekers (
+-- jobseekers table
+CREATE TABLE jobseekers (
     jobSeekerID INT PRIMARY KEY,
     firstName VARCHAR(300),
     lastName VARCHAR(300),
@@ -113,8 +113,8 @@ CREATE TABLE jobSeekers (
     skills VARCHAR(6000)
 );
 
--- jobListings table
-CREATE TABLE jobListings (
+-- joblistings table
+CREATE TABLE joblistings (
     jobID INT PRIMARY KEY,
     jobTitle VARCHAR(1000),
     jobDescription TEXT,

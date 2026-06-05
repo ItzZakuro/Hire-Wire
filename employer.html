@@ -76,9 +76,9 @@
         <!-- NEW SECTION for linking candidate cards to database -->
         <script>
             async function loadCandidates() {
-                const response = await fetch('http://localhost:3000/api/jobSeekers');
+                const response = await fetch('http://localhost:3000/api/jobseekers');
                 const candidates = await response.json();
-                const container = document.getElementById('jobSeekersContainer');
+                const container = document.getElementById('jobseekersContainer');
 
                 container.innerHTML = jobs.map(job => `
                     <div class="candidateCard">

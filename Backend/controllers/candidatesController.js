@@ -3,7 +3,7 @@ const path = require('path');
 const db = require('../db/db');
 
 function getAllCandidates(req, res) {
-    db.query('SELECT * FROM jobSeekers', (err, results) => {
+    db.query('SELECT * FROM jobseekers', (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: err.message });
@@ -34,7 +34,7 @@ function getProfileById(req, res) {
     const { id } = req.params;
 
     db.query(
-        'SELECT * FROM jobSeekers WHERE jobSeekerID = ?',
+        'SELECT * FROM jobseekers WHERE jobSeekerID = ?',
         [id],
         (err, results) => {
             if (err) {
@@ -93,7 +93,7 @@ function updateProfile(req, res) {
     const lastName = nameParts.slice(1).join(' ') || '';
 
     const sql = `
-        UPDATE jobSeekers
+        UPDATE jobseekers
         SET
             firstName = ?,
             lastName = ?,
