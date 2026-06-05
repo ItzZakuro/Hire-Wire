@@ -55,7 +55,7 @@ db.connect(err => {
 // endpoint for job listings/employers (returns all job listing data)
 app.get("/api/jobListings", (req, res) => {
     // console.log("API HIT: /api/jobListings"); // debug
-  db.query('SELECT * FROM jobListings', (err, results) => { // sends sql query to database
+  db.query('SELECT * FROM joblistings', (err, results) => { // sends sql query to database
     // console.log("QUERY CALLBACK REACHED"); // debug
     
     // error handling
