@@ -126,44 +126,35 @@ This included:
 
 ---
 
-## Installation
+## Installation (dont in git bash)
 
 ### 1. Clone the repository
 
 bash git clone <https://github.com/ItzZakuro/Hire-Wire> 
 
-### 2. Install dependencies
+### 2. Move to backend folder
+
+cd Backend 
+
+### 3. Install dependencies
 
 npm install 
 
-npm install sqlite3
+### 4. Start the Backend Server
 
-### 3. Create MySQL Database
-
-Create a MySQL database named:
-
-sql CREATE DATABASE hirewire; 
-
-Import the required tables:
-
-- jobseekers
-- joblistings
-
-Run Database/starter_queries.sql before launching the application.
-
-### 4. Configure Environment Variables
-
-Create a .env file in the Backend directory:
-
-env DB_HOST=localhost DB_PORT=3306 DB_USER=root DB_PASSWORD=your_password DB_NAME=hirewire PORT=3000 
+node server.js 
 
 ### 5. Start the Backend Server
 
-bash node server.js 
+View the website through http://localhost:3000
+OR 
+Ctrl + Left Click if viewing in VS Code
 
-### 6. Open the Application
+### 6. Environment Variables
 
-Open the frontend files through a local server and ensure the backend server is running.
+For ease of marking, we removed our .env file from gitignore. This makes the marking process much simpler (although it does permit security issues). 
+
+This is something we are aware of. Viewing the github history of the main branch will show that this change was made as the very end of the project for MARKING PURPOSES ONLY.
 
 ---
 
