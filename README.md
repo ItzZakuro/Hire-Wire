@@ -168,6 +168,9 @@ This is something we are aware of. Viewing the github history of the main branch
 6. Browse or create job listings
 7. Use the matching system
 
+Note: to log in as an existing user, the following accounts have been created in advance...
+They can be found in the users.json file under Backend\db\users.json
+
 ---
 
 ## Future Improvements
